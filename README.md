@@ -8,10 +8,11 @@
 
 <table>
   <tr>
-    <td align="center"><img src="./docs/demo-1-home.png" width="210" alt="首页总览" /><br/><sub><b>首页总览</b> · 四层结构与真实净资产</sub></td>
-    <td align="center"><img src="./docs/demo-2-allocation.png" width="210" alt="目标配比与再平衡" /><br/><sub><b>目标配比</b> · 双条对比与不损息建议</sub></td>
-    <td align="center"><img src="./docs/demo-3-checkin.png" width="210" alt="每月10分钟盘点月报" /><br/><sub><b>月度盘点</b> · 家庭月报与走势</sub></td>
-    <td align="center"><img src="./docs/demo-4-due.png" width="210" alt="到期安排与存单梯子" /><br/><sub><b>到期安排</b> · 半年柱图与存单梯子</sub></td>
+    <td align="center"><img src="./docs/demo-1-home.png" width="172" alt="首页总览" /><br/><sub><b>首页总览</b><br/>四层结构与真实净资产</sub></td>
+    <td align="center"><img src="./docs/demo-2-allocation.png" width="172" alt="目标配比与再平衡" /><br/><sub><b>目标配比</b><br/>双条对比与不损息建议</sub></td>
+    <td align="center"><img src="./docs/demo-3-checkin.png" width="172" alt="每月10分钟盘点月报" /><br/><sub><b>月度盘点</b><br/>家庭月报与资产走势</sub></td>
+    <td align="center"><img src="./docs/demo-4-due.png" width="172" alt="到期安排与存单梯子" /><br/><sub><b>到期安排</b><br/>半年柱图与存单梯子</sub></td>
+    <td align="center"><img src="./docs/demo-5-forecast.png" width="172" alt="家庭退休计划" /><br/><sub><b>退休计划</b><br/>三层确定性与里程碑</sub></td>
   </tr>
 </table>
 
