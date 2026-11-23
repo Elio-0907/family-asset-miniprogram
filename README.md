@@ -4,6 +4,17 @@
 
 它不是日常流水记账 App，而是面向中国家庭真实资产结构设计的**低频录入、高频浏览**资产总览工具：基于原生微信小程序 + 微信云开发（CloudBase），**不需要买服务器、不需要域名备案、不存任何银行/券商密码**，拿一个个人微信小程序账号 10 分钟就能免费部署自用，还支持夫妻/家人共享同一本账本。
 
+## 界面预览（示例数据）
+
+<table>
+  <tr>
+    <td align="center"><img src="./docs/demo-1-home.png" width="210" alt="首页总览" /><br/><sub><b>首页总览</b> · 四层结构与真实净资产</sub></td>
+    <td align="center"><img src="./docs/demo-2-allocation.png" width="210" alt="目标配比与再平衡" /><br/><sub><b>目标配比</b> · 双条对比与不损息建议</sub></td>
+    <td align="center"><img src="./docs/demo-3-checkin.png" width="210" alt="每月10分钟盘点月报" /><br/><sub><b>月度盘点</b> · 家庭月报与走势</sub></td>
+    <td align="center"><img src="./docs/demo-4-due.png" width="210" alt="到期安排与存单梯子" /><br/><sub><b>到期安排</b> · 半年柱图与存单梯子</sub></td>
+  </tr>
+</table>
+
 ---
 
 ## 核心特性
