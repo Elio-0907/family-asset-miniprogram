@@ -1,0 +1,246 @@
+<view class="page {{masked ? 'masked' : ''}}" wx:if="{{loaded}}">
+  <view class="pagetop">
+    <view class="pagetitle">{{monthTitle}}</view>
+    <view class="pagesub">每月花几分钟过一遍需要更新的账户，其余交给系统自动算</view>
+  </view>
+
+  <!-- ===== 情况 A：本月已完成盘点 → 展示月报 ===== -->
+  <block wx:if="{{showReport && report}}">
+    <view class="sec">
+      <view class="rpt-card">
+        <view class="rpt-top">
+          <text class="eyebrow">{{report.monthLabel}}家底月报</text>
+          <text class="rpt-meta">{{report.date}}{{report.byName ? ' · ' + report.byName : ''}}</text>
+        </view>
+        <view class="rpt-label">可动用金融资产</view>
+        <view class="rpt-num v">{{report.liquidText}}</view>
+        <view class="rpt-delta {{report.deltaLiquidCls}}" wx:if="{{report.hasPrev}}">
+          较 {{report.prevMonthLabel}} {{report.deltaLiquidText}}{{report.deltaLiquidPctText ? '（' + report.deltaLiquidPctText + '）' : ''}}
+        </view>
+        <view class="rpt-delta flat" wx:else>首次月度盘点已存档，下个月起自动对比变化</view>
+
+        <view class="rpt-sub">
+          <text>净资产</text>
+          <text class="v rpt-subv">{{report.netText}}</text>
+          <text class="rpt-subd {{report.deltaNetCls}}" wx:if="{{report.hasPrev}}">{{report.deltaNetText}}</text>
+        </view>
+        <view class="rpt-sub" wx:if="{{report.hasLiability}}">
+          <text>负债</text>
+          <text class="v rpt-subv">{{report.liabilityText}}</text>
+          <text class="rpt-subd {{report.deltaLiabilityCls}}" wx:if="{{report.deltaLiabilityText}}">{{report.deltaLiabilityText}}</text>
+        </view>
+
+        <view class="rpt-note" wx:if="{{report.note}}">「{{report.note}}」</view>
+      </view>
+    </view>
+
+    <!-- 分项变化 -->
+    <view class="sec" wx:if="{{report.byModeDiff.length}}">
+      <view class="sec-head">
+        <text class="eyebrow">可动用构成{{report.hasPrev ? '与变化' : ''}}</text>
+      </view>
+      <view class="rows">
+        <view class="row" wx:for="{{report.byModeDiff}}" wx:key="mode">
+          <view class="swatch tone-{{item.tone}}"></view>
+          <view class="b">
+            <view class="t">{{item.name}}</view>
+          </view>
+          <view class="r">
+            <view class="v">{{item.valueText}}</view>
+            <view class="d {{item.deltaCls}}" wx:if="{{item.deltaText}}">{{item.deltaText}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 近 6 个月趋势柱状图 -->
+    <view class="sec" wx:if="{{report.monthlyBars.length >= 2}}">
+      <view class="sec-head">
+        <text class="eyebrow">可动用资产走势</text>
+        <text class="tot">近 {{report.monthlyBars.length}} 个月</text>
+      </view>
+      <view class="trend-card">
+        <view class="tbars">
+          <view class="tb" wx:for="{{report.monthlyBars}}" wx:key="month">
+            <view class="tbv v">{{item.shortVal}}</view>
+            <view class="tbcol">
+              <view class="tbbar {{item.isCurrent ? 'cur' : ''}}" style="height:{{item.pct}}%"></view>
+            </view>
+            <view class="tbl {{item.isCurrent ? 'cur' : ''}}">{{item.shortMonth}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 月报联动：当前配比状态 -->
+    <view class="sec" wx:if="{{allocBanner.show}}">
+      <view class="layer" bindtap="goAllocation" hover-class="btn-hover">
+        <view class="b">
+          <view class="t">目标配比体检</view>
+          <view class="s {{allocBanner.drifted ? 'warnc' : ''}}">{{allocBanner.text}}</view>
+        </view>
+        <text class="chev">›</text>
+      </view>
+    </view>
+
+    <view class="sec">
+      <view class="btn ghost" bindtap="reopenChecklist" hover-class="btn-hover">补充核对 / 重新结账</view>
+      <view class="btn mt" bindtap="goHome" hover-class="btn-hover">返回总览</view>
+    </view>
+  </block>
+
+  <!-- ===== 情况 B：盘点清单向导 ===== -->
+  <block wx:else>
+    <!-- 进度条 -->
+    <view class="sec">
+      <view class="prog-card">
+        <view class="prog-top">
+          <text class="prog-t">已核对 {{doneCount}} / {{todo.length}} 项</text>
+          <text class="prog-v v">可动用 {{liquidText}}</text>
+        </view>
+        <view class="prog-track">
+          <view class="prog-fill" style="width:{{progressPct}}%"></view>
+        </view>
+        <view class="prog-s" wx:if="{{alreadyDoneThisMonth}}">本月已盘点过，修改后可重新结账更新月报</view>
+        <view class="prog-s" wx:elif="{{todo.length === 0}}">所有资产均为系统自动追踪，直接点下方生成本月报告即可</view>
+        <view class="prog-s" wx:elif="{{doneCount === todo.length}}">全部核对完成，点最下方按钮生成本月家底月报</view>
+        <view class="prog-s" wx:else>支持直接截图 AI 识图更新，没变动的点一下「无变动」跳过</view>
+      </view>
+    </view>
+
+    <!-- 待核对清单 -->
+    <view class="sec" wx:if="{{todo.length}}">
+      <view class="sec-head">
+        <text class="eyebrow">需要核对 · {{todo.length}} 项</text>
+        <text class="ck-link" wx:if="{{doneCount < todo.length}}" bindtap="markAllDone">全部无变动</text>
+      </view>
+
+      <view class="ck-item {{item.checked ? 'done' : ''}}" wx:for="{{todo}}" wx:key="id">
+        <view class="ck-head" data-id="{{item.id}}" bindtap="toggleItemExpand">
+          <view class="ck-dot {{item.checked ? 'on' : ''}}">{{item.checked ? '✓' : ''}}</view>
+          <view class="ck-b">
+            <view class="ck-t">{{item.name}}</view>
+            <view class="ck-s {{item.kind === 'due_cd' ? 'warnc' : ''}}">{{item.checkedText || item.reason}}</view>
+          </view>
+          <view class="ck-r">
+            <view class="ck-v v">{{item.valueText}}</view>
+            <view class="ck-st {{item.checked ? 'ok' : ''}}">{{item.checked ? '已核对' : '待核对'}}</view>
+          </view>
+        </view>
+
+        <!-- 展开的操作区 -->
+        <view class="ck-body" wx:if="{{!item.checked || expandedId === item.id}}">
+          <view class="ck-acts">
+            <view class="ck-act pri" wx:if="{{item.kind === 'balance' || item.kind === 'market_shot' || item.kind === 'market_hold'}}"
+                  data-id="{{item.id}}" data-scene="{{item.kind === 'balance' ? 'balance' : 'market'}}"
+                  bindtap="startShot" hover-class="btn-hover">▣ 截图更新</view>
+
+            <view class="ck-act" wx:if="{{item.kind === 'balance' || item.kind === 'appraisal' || item.kind === 'loan_simple'}}"
+                  data-id="{{item.id}}" bindtap="openInlineEdit" hover-class="btn-hover">{{item.kind === 'balance' ? '改金额' : (item.kind === 'loan_simple' ? '改剩余欠款' : '改估值')}}</view>
+
+            <view class="ck-act" wx:if="{{item.kind === 'market_shot' || item.kind === 'market_hold' || item.kind === 'due_cd'}}"
+                  data-id="{{item.id}}" bindtap="openAssetDetail" hover-class="btn-hover">{{item.kind === 'due_cd' ? '去处理 / 转存' : '改详情'}}</view>
+
+            <view class="ck-act ghost" data-id="{{item.id}}" bindtap="markNoChange" hover-class="btn-hover">{{item.kind === 'due_cd' ? '知道了' : '无变动'}}</view>
+          </view>
+
+          <!-- 原地快速改金额/估值/欠款 -->
+          <view class="ck-inline" wx:if="{{editingId === item.id}}">
+            <view class="ck-inrow">
+              <text class="ck-inl">{{item.kind === 'balance' ? '最新余额' : (item.kind === 'loan_simple' ? '剩余欠款' : '最新估值')}}</text>
+              <input class="ck-ini" type="digit" focus="{{true}}" value="{{editingVal}}"
+                     placeholder="输入元" placeholder-class="ph" bindinput="onInlineInput" />
+              <text class="fu">元</text>
+            </view>
+            <view class="btnrow">
+              <view class="btn ghost half sm" bindtap="cancelInlineEdit">取消</view>
+              <view class="btn half sm" data-id="{{item.id}}" bindtap="saveInlineEdit">保存并打勾</view>
+            </view>
+          </view>
+
+          <!-- 原地 AI 识图确认框 -->
+          <view class="ck-ocr" wx:if="{{ocr && ocr.assetId === item.id}}">
+            <view class="eyebrow">{{ocr.title}}</view>
+
+            <!-- 支付宝/余额分项选择 -->
+            <block wx:if="{{ocr.scene === 'balance'}}">
+              <view class="ocropts" wx:if="{{ocr.items.length > 1}}">
+                <view wx:for="{{ocr.items}}" wx:for-item="opt" wx:for-index="oi" wx:key="label"
+                      class="ocropt {{ocr.pickIdx === oi ? 'on' : ''}}"
+                      data-i="{{oi}}" bindtap="pickOcrItem">
+                  <text class="ocropt-l">{{opt.label}}</text>
+                  <text class="ocropt-v">{{opt.amountText}}</text>
+                </view>
+              </view>
+              <view class="cline" wx:elif="{{ocr.selectedText}}">
+                <text>{{ocr.selectedLabel}}</text>
+                <text class="cv">{{ocr.selectedText}}</text>
+              </view>
+            </block>
+
+            <!-- 券商总览 -->
+            <block wx:else>
+              <view class="cline" wx:if="{{ocr.totalText}}"><text>总资产</text><text class="cv">{{ocr.totalText}}</text></view>
+              <view class="cline" wx:if="{{ocr.pnlText}}"><text>总盈亏</text><text class="cv {{ocr.pnlCls}}">{{ocr.pnlText}}</text></view>
+              <view class="cline" wx:if="{{ocr.cashText}}"><text>可用资金</text><text class="cv">{{ocr.cashText}}</text></view>
+              <view class="cline" wx:if="{{ocr.netInText}}"><text>反推净转入</text><text class="cv">{{ocr.netInText}}</text></view>
+              <view class="ocr-hint" wx:if="{{ocr.holdingsCount > 0}}">同时识别到 {{ocr.holdingsCount}} 只持仓；如需导入个股明细请点「改详情」</view>
+            </block>
+
+            <view class="ocrnote">截图已删除，只保留数字{{ocr.fallbackNote ? ' · ' + ocr.fallbackNote : ''}}</view>
+            <view class="btnrow">
+              <view class="btn ghost half sm" bindtap="cancelOcr">取消</view>
+              <view class="btn half sm" bindtap="applyOcrSave">确认保存并打勾</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 系统自动追踪汇总（折叠） -->
+    <view class="sec" wx:if="{{auto.length}}">
+      <view class="layer {{autoOpen ? 'open' : ''}}" bindtap="toggleAuto" hover-class="btn-hover">
+        <view class="b">
+          <view class="t">其余 {{auto.length}} 项已自动追踪</view>
+          <view class="s">存单算息 / 金条金价 / 折旧自动更新，本次无需操作</view>
+        </view>
+        <text class="chev {{autoOpen ? 'down' : ''}}">›</text>
+      </view>
+      <view class="rows inlayer" wx:if="{{autoOpen}}">
+        <view class="row" wx:for="{{auto}}" wx:key="id" data-id="{{item.id}}" bindtap="openAssetDetail" hover-class="btn-hover">
+          <view class="swatch tone-{{item.tone}}"></view>
+          <view class="b">
+            <view class="t">{{item.name}}</view>
+            <view class="s">{{item.autoNote}}</view>
+          </view>
+          <view class="r">
+            <view class="v">{{item.valueText}}</view>
+          </view>
+          <text class="chev">›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 本月备忘 + 结账按钮 -->
+    <view class="sec">
+      <view class="note-card">
+        <text class="eyebrow">本月备忘（选填）</text>
+        <input class="note-input" maxlength="80" value="{{note}}"
+               placeholder="例如：年终奖到账 / 赎回了一笔理财 / 买了新存单"
+               placeholder-class="ph" bindinput="onNoteInput" />
+      </view>
+    </view>
+
+    <view class="sec">
+      <view class="btn" bindtap="finish" hover-class="btn-hover">
+        {{doneCount >= todo.length ? '完成本月盘点，生成月报' : '还有 ' + (todo.length - doneCount) + ' 项未核对 · 直接结账生成月报'}}
+      </view>
+      <view class="btn ghost mt" wx:if="{{alreadyDoneThisMonth && report}}" bindtap="viewExistingReport" hover-class="btn-hover">
+        返回查看本月月报
+      </view>
+    </view>
+  </block>
+
+  <view style="height:120rpx"></view>
+</view>
+<view class="empty" wx:else>正在准备本月盘点……</view>

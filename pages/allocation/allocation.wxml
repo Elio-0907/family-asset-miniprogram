@@ -1,0 +1,176 @@
+<view class="page {{masked ? 'masked' : ''}}" wx:if="{{loaded}}">
+  <view class="pagetop">
+    <view class="pagetitle">目标配比</view>
+    <view class="pagesub">按可动用金融资产 4 大类管理，偏离超阈值时温和提醒</view>
+  </view>
+
+  <!-- ===== 已设目标：上下对比卡 + 4 类明细 + 再平衡建议 ===== -->
+  <block wx:if="{{configured && !editing}}">
+    <view class="sec">
+      <view class="cmp-card">
+        <view class="cmp-top">
+          <view class="status-pill {{statusCls}}">{{statusLabel}}</view>
+          <text class="edit-link" bindtap="startEdit">调整目标</text>
+        </view>
+        <view class="cmp-head">{{headline}}</view>
+        <view class="cmp-sub">可动用金融资产 <text class="v">{{liquidText}}</text> · 容忍区间 ±{{threshold}}%</view>
+
+        <!-- 上下双条对比 -->
+        <view class="dual" wx:if="{{liquid > 0}}">
+          <view class="drow">
+            <text class="dl">当前实际</text>
+            <view class="dbar">
+              <view wx:for="{{actualSegs}}" wx:key="key" class="dseg tone-{{item.tone}}" style="width:{{item.w}}%"></view>
+            </view>
+          </view>
+          <view class="drow">
+            <text class="dl">目标配比</text>
+            <view class="dbar">
+              <view wx:for="{{targetSegs}}" wx:key="key" class="dseg tone-{{item.tone}}" style="width:{{item.w}}%"></view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 4 大类明细分项 -->
+    <view class="sec">
+      <view class="sec-head">
+        <text class="eyebrow">实际 vs 目标</text>
+        <text class="tot">差额按当前总额算</text>
+      </view>
+      <view class="rows">
+        <view class="row" wx:for="{{rows}}" wx:key="key">
+          <view class="swatch tone-{{item.tone}}"></view>
+          <view class="b">
+            <view class="t">{{item.name}}</view>
+            <view class="s">实际 {{item.actualPctText}} · 目标 {{item.targetPct}}%</view>
+          </view>
+          <view class="r">
+            <view class="v">{{item.actualText}}</view>
+            <view class="d {{item.diffCls}}">{{item.diffText}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 不损息的再平衡建议 -->
+    <view class="sec" wx:if="{{advice.length}}">
+      <view class="sec-head"><text class="eyebrow">操作建议</text></view>
+      <view class="adv-card">
+        <view class="adv-item" wx:for="{{advice}}" wx:key="*this">
+          <view class="adv-dot"></view>
+          <text class="adv-txt">{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 压力测试 + 调整记录 -->
+    <view class="sec" wx:if="{{stressText}}">
+      <view class="truth">
+        <view class="stripe"></view>
+        <view class="ttext">{{stressText}}</view>
+      </view>
+    </view>
+
+    <view class="note-box" wx:if="{{updatedAt || savedNote}}">
+      上次设定：{{updatedAt || '刚刚'}}{{savedNote ? ' · 「' + savedNote + '」' : ''}}
+    </view>
+  </block>
+
+  <!-- ===== 目标编辑器（首次进入自动展开，之后点「调整目标」展开）===== -->
+  <block wx:else>
+    <!-- 经典方案一键套用 -->
+    <view class="sec">
+      <view class="sec-head">
+        <text class="eyebrow">一键套用经典方案（可再自由微调）</text>
+      </view>
+      <view class="presets">
+        <view class="preset {{activePreset === item.id ? 'on' : ''}}"
+              wx:for="{{presets}}" wx:key="id" data-id="{{item.id}}" bindtap="applyPreset" hover-class="btn-hover">
+          <view class="pt">{{item.name}}</view>
+          <view class="ps">{{item.desc}}</view>
+          <view class="pp">{{item.ratioText}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 4 项滑块 + 数字输入 -->
+    <view class="sec">
+      <view class="sec-head">
+        <text class="eyebrow">自定义 4 大类目标占比</text>
+        <text class="sum-badge {{sumTotal === 100 ? 'ok' : 'bad'}}">合计 {{sumTotal}}%</text>
+      </view>
+      <view class="card">
+        <view class="ed-row" wx:for="{{editRows}}" wx:key="key">
+          <view class="ed-top">
+            <view class="ed-left">
+              <view class="ed-dot tone-{{item.tone}}"></view>
+              <view>
+                <view class="ed-name">{{item.name}}</view>
+                <view class="ed-desc">{{item.desc}}</view>
+              </view>
+            </view>
+            <view class="ed-inp-wrap">
+              <input class="ed-inp" type="number" maxlength="3" value="{{item.pct}}"
+                     data-k="{{item.key}}" bindinput="onPctInput" />
+              <text class="ed-u">%</text>
+            </view>
+          </view>
+          <slider min="0" max="100" step="1" value="{{item.pctNum}}" activeColor="#B89A5E"
+                  block-size="20" data-k="{{item.key}}" bindchanging="onPctSlide" bindchange="onPctSlide" />
+          <view class="ed-meta">
+            <text>当前实际 {{item.actualPctText}}</text>
+            <text class="v" wx:if="{{liquid > 0}}">目标约 {{item.targetMoneyText}}</text>
+          </view>
+        </view>
+
+        <!-- 合计不是 100% 时给一个一键配平按钮 -->
+        <view class="sum-fix" wx:if="{{sumTotal !== 100}}">
+          <text class="sum-tip">{{sumTotal < 100 ? ('还差 ' + (100 - sumTotal) + '% 凑满 100%') : ('超出了 ' + (sumTotal - 100) + '%')}}</text>
+          <view class="fix-btn" wx:if="{{canAutoFillCd}}" bindtap="autoFillCd" hover-class="btn-hover">差额补到存单</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 偏离容忍度 + 调整理由 -->
+    <view class="sec">
+      <view class="sec-head"><text class="eyebrow">提醒灵敏度与纪律备忘</text></view>
+      <view class="card">
+        <view class="ed-row">
+          <view class="ed-top">
+            <text class="ed-name">偏离容忍区间</text>
+            <text class="th-val">±{{draftThreshold}}%</text>
+          </view>
+          <slider min="2" max="15" step="1" value="{{draftThreshold}}" activeColor="#B89A5E"
+                  block-size="20" bindchanging="onThresholdSlide" bindchange="onThresholdSlide" />
+          <view class="ed-meta">
+            <text>单项偏离超过 ±{{draftThreshold}}% 时，在首页温和提示</text>
+          </view>
+        </view>
+        <view class="ed-note">
+          <text class="eyebrow">本次调整理由（选填）</text>
+          <input class="note-in" maxlength="60" value="{{draftNote}}"
+                 placeholder="例如：估值偏低，把股票目标调到 30%" placeholder-class="ph"
+                 bindinput="onNoteInput" />
+        </view>
+      </view>
+    </view>
+
+    <!-- 实时压力测试预览 -->
+    <view class="sec" wx:if="{{draftStressText}}">
+      <view class="truth">
+        <view class="stripe"></view>
+        <view class="ttext">{{draftStressText}}</view>
+      </view>
+    </view>
+
+    <view class="sec">
+      <view class="btn {{sumTotal === 100 ? '' : 'disabled'}}" bindtap="save" hover-class="btn-hover">保存目标配比</view>
+      <view class="btn ghost mt" wx:if="{{configured}}" bindtap="cancelEdit" hover-class="btn-hover">取消</view>
+    </view>
+  </block>
+
+  <view style="height:120rpx"></view>
+</view>
+<view class="empty" wx:else>正在读取配比……</view>

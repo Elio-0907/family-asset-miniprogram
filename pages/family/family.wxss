@@ -1,0 +1,27 @@
+.mecap { color: var(--text-3); font-weight: 400; }
+.link { font-size: 24rpx; color: var(--brass); }
+.link.center { display: block; text-align: center; padding: 20rpx 0 4rpx; }
+.link.danger { color: var(--seal); }
+.hintline { font-size: 21rpx; color: var(--text-3); padding: 14rpx 4rpx 0; }
+
+.invbox { padding: 30rpx 28rpx 12rpx; border-radius: 24rpx; background: var(--card); }
+.code { font-size: 64rpx; font-weight: 600; letter-spacing: 0.22em; text-align: center;
+        font-variant-numeric: tabular-nums; font-family: ui-monospace, Menlo, monospace; }
+.codes { font-size: 22rpx; color: var(--text-2); text-align: center; margin: 10rpx 0 24rpx; line-height: 1.5; }
+.sharebtn { width: 100%; line-height: 1.4; }
+.sharebtn::after { border: none; }
+.note-box.tight { margin: 18rpx 0 0; }
+
+.field { display: flex; align-items: center; padding: 24rpx 0; border-bottom: 1rpx solid var(--hair); }
+.fl { font-size: 26rpx; color: var(--text-2); width: 150rpx; flex: none; }
+.fi { flex: 1; min-width: 0; font-size: 28rpx; color: var(--text); text-align: right; }
+.fi.mono { font-family: ui-monospace, Menlo, monospace; letter-spacing: 0.12em; }
+.mono { font-family: ui-monospace, Menlo, monospace; letter-spacing: 0.1em; font-weight: 600; }
+.ph { color: var(--text-3); }
+.btn.mt { margin-top: 24rpx; }
+
+.joinfirst { padding-top: 24rpx; }
+.joincard { padding: 28rpx 28rpx 26rpx; border-radius: 24rpx; background: var(--card); }
+.jt { font-size: 29rpx; font-weight: 600; }
+.js { font-size: 24rpx; color: var(--text-2); margin: 8rpx 0 6rpx; }
+.field.last { border-bottom: none; }

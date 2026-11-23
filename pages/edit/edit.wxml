@@ -1,0 +1,389 @@
+<view class="page">
+  <view class="pagetop">
+    <view class="pagetitle">{{isNew ? '记一笔' : form.name}}</view>
+    <view class="pagesub">{{isNew ? '先选这笔钱「怎么算出现在值多少」' : modeLabel + ' · ' + layerLabel}}</view>
+  </view>
+
+  <!-- 计价方式：只有新建时能选，改已有资产的计价方式等于换一笔资产 -->
+  <view class="chips" wx:if="{{isNew}}">
+    <view wx:for="{{modes}}" wx:key="k"
+          class="chip {{mode === item.k ? 'on' : ''}}"
+          data-k="{{item.k}}" bindtap="pickMode">{{item.label}}</view>
+  </view>
+
+  <!-- ===== 每月存单计划（已有计划先展示清爽总览卡，规则和存单明细默认折叠）===== -->
+  <block wx:if="{{mode === 'plan'}}">
+    <!-- 已有计划：清爽总览卡 -->
+    <view class="sec" wx:if="{{plan.id}}">
+      <view class="plan-hero">
+        <view class="eyebrow">{{plan.institution ? plan.institution + ' · ' : ''}}每月自动定存</view>
+        <view class="plan-tot v">{{planCdsTotal || '¥0'}}</view>
+        <view class="plan-rule">
+          每月 {{plan.day || 1}} 日 ¥{{plan.amount}} · {{termLabels[plan.termIndex]}} {{plan.rate ? plan.rate + '%' : ''}} · {{onMatureLabels[plan.onMatureIndex || 0]}}
+        </view>
+        <view class="plan-meta">
+          <text>已攒 {{planCds.length}} 张存单</text>
+          <text wx:if="{{planPreview.length}}"> · 下一张 {{planPreview[0].v}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="hint" wx:if="{{!plan.id}}">每个月固定日子自动开一张新存单。一年后每个月都有一张到期，到期页的梯子图会是整齐的阶梯。</view>
+
+    <!-- 已有计划时：折叠「修改规则与期数」；新建时直接展开 -->
+    <view class="sec" wx:if="{{plan.id}}">
+      <view class="layer {{planRuleOpen ? 'open' : ''}}" bindtap="togglePlanRule" hover-class="btn-hover">
+        <view class="b">
+          <view class="t">修改定存规则与期数</view>
+          <view class="s">改每月金额、利率、到期方式，或增减已存期数</view>
+        </view>
+        <text class="chev {{planRuleOpen ? 'down' : ''}}">›</text>
+      </view>
+    </view>
+
+    <block wx:if="{{!plan.id || planRuleOpen}}">
+    <view class="form">
+      <view class="field">
+        <text class="fl">银行</text>
+        <input class="fi" placeholder="招商银行" placeholder-class="ph" value="{{plan.institution}}" data-k="institution" bindinput="onPlanInput" />
+      </view>
+      <view class="field">
+        <text class="fl">每月金额</text>
+        <input class="fi" type="digit" placeholder="2000" placeholder-class="ph" value="{{plan.amount}}" data-k="amount" bindinput="onPlanInput" />
+        <text class="fu">元</text>
+      </view>
+      <view class="field">
+        <text class="fl">每月几号</text>
+        <input class="fi" type="number" placeholder="1" placeholder-class="ph" value="{{plan.day}}" data-k="day" bindinput="onPlanInput" />
+        <text class="fu">日</text>
+      </view>
+      <view class="field">
+        <text class="fl">期限</text>
+        <picker mode="selector" range="{{termLabels}}" value="{{plan.termIndex}}" bindchange="onPlanTerm">
+          <view class="fi">{{termLabels[plan.termIndex]}}</view>
+        </picker>
+      </view>
+      <view class="field">
+        <text class="fl">年利率</text>
+        <input class="fi" type="digit" placeholder="1.95" placeholder-class="ph" value="{{plan.rate}}" data-k="rate" bindinput="onPlanInput" />
+        <text class="fu">%</text>
+      </view>
+      <view class="field">
+        <text class="fl">到期后</text>
+        <picker mode="selector" range="{{onMatureLabels}}" value="{{plan.onMatureIndex}}" bindchange="onPlanMature">
+          <view class="fi">{{onMatureLabels[plan.onMatureIndex]}}</view>
+        </picker>
+      </view>
+      <view class="field" wx:if="{{!plan.id}}">
+        <text class="fl">从哪个月开始存的</text>
+        <picker mode="date" fields="month" value="{{plan.startMonth}}" bindchange="onPlanStart">
+          <view class="fi {{plan.startMonth ? '' : 'ph'}}">{{plan.startMonth || '这个月才开始就不填'}}</view>
+        </picker>
+      </view>
+      <view class="field last" wx:if="{{!plan.id && plan.dayPassed}}">
+        <text class="fl">这个月的已经存过了</text>
+        <switch checked="{{plan.doneThisMonth}}" color="#B89A5E" bindchange="onPlanDone" />
+      </view>
+    </view>
+
+    <view class="calcbox" wx:if="{{backfillText}}">
+      <view class="eyebrow">保存后会补录往期</view>
+      <view class="cline"><text>补录</text><text class="cv">{{backfillText}}</text></view>
+      <view class="cline"><text>第一张</text><text class="cv">{{backfillFirst}}</text></view>
+      <view class="cline"><text>最早到期</text><text class="cv">{{backfillDue}}</text></view>
+    </view>
+
+    <view class="calcbox" wx:if="{{planPreview.length}}">
+      <view class="eyebrow">{{plan.id ? '下一张' : (plan.doneThisMonth ? '下一张' : '保存后立刻开的这一张')}}</view>
+      <view class="cline" wx:for="{{planPreview}}" wx:key="k"><text>{{item.k}}</text><text class="cv">{{item.v}}</text></view>
+    </view>
+
+    <view class="sec" wx:if="{{plan.id}}">
+      <view class="stepbox">
+        <view class="b">
+          <view class="t">已存期数</view>
+          <view class="s">数错了在这儿改：加一张往更早补，减一张去掉最早的</view>
+        </view>
+        <view class="stepper">
+          <view class="stb" data-d="-1" bindtap="adjustPlan">−</view>
+          <text class="stn">{{planCds.length}}</text>
+          <view class="stb" data-d="1" bindtap="adjustPlan">＋</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="sec">
+      <view class="btn" bindtap="savePlan" hover-class="btn-hover">{{plan.id ? '保存修改' : '开始每月自动开单'}}</view>
+      <view class="btn ghost mt" wx:if="{{plan.id}}" bindtap="stopPlan" hover-class="btn-hover">停止自动开单</view>
+    </view>
+    </block>
+
+    <!-- 已开出的存单：默认折叠，点一下展开看每张 -->
+    <view class="sec" wx:if="{{planCds.length}}">
+      <view class="layer {{planListOpen ? 'open' : ''}}" bindtap="togglePlanList" hover-class="btn-hover">
+        <view class="b">
+          <view class="t">已开出的存单 · {{planCds.length}} 张</view>
+          <view class="s">点开查看或编辑每一张的起息与到期</view>
+        </view>
+        <text class="v">{{planCdsTotal}}</text>
+        <text class="chev {{planListOpen ? 'down' : ''}}">›</text>
+      </view>
+      <view class="rows inlayer" wx:if="{{planListOpen}}">
+        <view class="row" wx:for="{{planCds}}" wx:key="id" data-id="{{item.id}}" bindtap="openCd" hover-class="btn-hover">
+          <view class="b"><view class="t">{{item.start}} 起息</view><view class="s">{{item.maturity}} 到期</view></view>
+          <view class="r"><view class="v">{{item.value}}</view><view class="d {{item.cls}}">{{item.days}}</view></view>
+          <text class="chev">›</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="note-box">已经开出来的存单不受影响，停止只是以后不再自动开新的。利率变了随时进来改，下一张按新利率。</view>
+  </block>
+
+  <block wx:if="{{mode !== 'plan'}}">
+  <view class="fromplan" wx:if="{{fromPlan}}" bindtap="goPlan" hover-class="btn-hover">
+    <text>这张是「每月存单」自动开出来的。改金额、利率、期限去计划页，这里只改这一张。</text>
+    <text class="chev">›</text>
+  </view>
+  <view class="hint">{{hint}}</view>
+
+  <!-- 归属层级 -->
+  <view class="chips small" wx:if="{{layers.length > 1}}">
+    <view wx:for="{{layers}}" wx:key="v"
+          class="chip {{layer === item.v ? 'on' : ''}}"
+          data-v="{{item.v}}" bindtap="pickLayer">{{item.t}}</view>
+  </view>
+
+  <view class="form">
+    <view class="field">
+      <text class="fl">名称</text>
+      <input class="fi" placeholder="给它起个你认得出的名字" placeholder-class="ph"
+             value="{{form.name}}" data-k="name" bindinput="onInput" />
+    </view>
+
+    <block wx:for="{{fields}}" wx:key="k">
+      <view class="field">
+        <text class="fl">{{item.label}}</text>
+
+        <input wx:if="{{item.type === 'text'}}" class="fi" placeholder="{{item.ph}}"
+               placeholder-class="ph" value="{{form[item.k]}}"
+               data-k="{{item.k}}" bindinput="onInput" />
+
+        <input wx:elif="{{item.type === 'money' || item.type === 'number' || item.type === 'rate'}}"
+               class="fi" type="digit" placeholder="{{item.ph}}" placeholder-class="ph"
+               value="{{form[item.k]}}" data-k="{{item.k}}" bindinput="onInput" />
+
+        <picker wx:elif="{{item.type === 'date'}}" mode="date" value="{{form[item.k]}}"
+                data-k="{{item.k}}" bindchange="onPickDate">
+          <view class="fi {{form[item.k] ? '' : 'ph'}}">{{form[item.k] || '选择日期'}}</view>
+        </picker>
+
+        <picker wx:elif="{{item.type === 'select'}}" mode="selector" range="{{item.options}}"
+                value="{{optIndex[item.k]}}" data-k="{{item.k}}" bindchange="onPickSelect">
+          <view class="fi">{{item.options[optIndex[item.k]]}}</view>
+        </picker>
+
+        <switch wx:elif="{{item.type === 'switch'}}" checked="{{form[item.k] === true || form[item.k] === 'true'}}"
+                color="#B89A5E" data-k="{{item.k}}" bindchange="onSwitch" />
+
+        <view wx:else class="fi auto">{{item.ph}}</view>
+
+        <text class="fu" wx:if="{{item.unit}}">{{item.unit}}</text>
+        <text class="autotag" wx:if="{{item.type === 'readonly'}}">自动</text>
+      </view>
+    </block>
+
+    <!-- 余额型：支付宝 / 余额宝 / 微信零钱等截图 AI 识图更新 -->
+    <view class="shot" wx:if="{{mode === 'balance'}}">
+      <view class="shotbtn" bindtap="pickShot" hover-class="btn-hover">
+        <text class="shoticon">▣</text>
+        <view class="shotb">
+          <view class="shott">从支付宝 / 余额截图更新</view>
+          <view class="shots">支持支付宝总资产、余额宝、微信零钱等截图，AI 自动识别金额</view>
+        </view>
+      </view>
+      <view class="ocrbox" wx:if="{{ocr}}">
+        <view class="eyebrow">{{ocr.title}}</view>
+        <block wx:if="{{ocr.items.length > 1}}">
+          <view class="ocrsub">点选要填入「当前余额」的那一项</view>
+          <view class="ocropts">
+            <view wx:for="{{ocr.items}}" wx:key="label"
+                  class="ocropt {{ocr.pickIdx === index ? 'on' : ''}}"
+                  data-i="{{index}}" bindtap="pickOcrItem">
+              <text class="ocropt-l">{{item.label}}</text>
+              <text class="ocropt-v">{{item.amountText}}</text>
+            </view>
+          </view>
+        </block>
+        <view class="cline" wx:elif="{{ocr.selectedText}}">
+          <text>{{ocr.selectedLabel}}</text>
+          <text class="cv">{{ocr.selectedText}}</text>
+        </view>
+        <view class="ocrnote">截图已删除，只保留数字{{ocr.fallbackNote ? ' · ' + ocr.fallbackNote : ''}}</view>
+        <view class="btnrow">
+          <view class="btn ghost half" bindtap="ocrCancel">不对，我手填</view>
+          <view class="btn half" bindtap="ocrApply">填入余额</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 市值型：更新方式二选一。截图省事，持仓能每天自动更新；选了一种另一种就收起来 -->
+    <view class="umode" wx:if="{{mode === 'market'}}">
+      <text class="fl">更新方式</text>
+      <view class="seg2">
+        <view class="seg2i {{updateMode === 'shot' ? 'on' : ''}}" data-m="shot" bindtap="pickUpdateMode">截图</view>
+        <view class="seg2i {{updateMode === 'hold' ? 'on' : ''}}" data-m="hold" bindtap="pickUpdateMode">录持仓</view>
+      </view>
+    </view>
+
+    <!-- 市值型：从券商 App 截图一键更新 -->
+    <view class="shot" wx:if="{{mode === 'market' && updateMode === 'shot'}}">
+      <view class="shotbtn" bindtap="pickShot" hover-class="btn-hover">
+        <text class="shoticon">▣</text>
+        <view class="shotb">
+          <view class="shott">从券商截图更新</view>
+          <view class="shots">打开券商 App 资产/持仓页截图，AI 自动识别总资产、盈亏与持仓</view>
+        </view>
+      </view>
+      <view class="ocrbox" wx:if="{{ocr}}">
+        <view class="eyebrow">{{ocr.title}}</view>
+        <view class="cline" wx:if="{{ocr.totalText}}"><text>总资产</text><text class="cv">{{ocr.totalText}}</text></view>
+        <view class="cline" wx:if="{{ocr.pnlText}}"><text>总盈亏</text><text class="cv {{ocr.pnlCls}}">{{ocr.pnlText}}</text></view>
+        <view class="cline" wx:if="{{ocr.marketText}}"><text>总市值</text><text class="cv">{{ocr.marketText}}</text></view>
+        <view class="cline" wx:if="{{ocr.cashText}}"><text>可用资金</text><text class="cv">{{ocr.cashText}}</text></view>
+        <view class="cline" wx:if="{{ocr.netInText}}"><text>反推净转入</text><text class="cv">{{ocr.netInText}}</text></view>
+        <view class="ocrholds" wx:if="{{ocr.holdings.length}}">
+          <view class="ocrsub">同时识别到 {{ocr.holdings.length}} 只持仓</view>
+          <view class="ocrh" wx:for="{{ocr.holdings}}" wx:key="key">
+            <text class="ocrh-n">{{item.name || item.code}}</text>
+            <text class="ocrh-c">{{item.code || '需补代码'}}</text>
+            <text class="ocrh-s">{{item.shares}} 股</text>
+          </view>
+        </view>
+        <view class="ocrnote">截图已删除，只保留数字{{ocr.fallbackNote ? ' · ' + ocr.fallbackNote : ''}}</view>
+        <view class="btnrow">
+          <view class="btn ghost half" bindtap="ocrCancel">不对，我手填</view>
+          <view class="btn half" wx:if="{{ocr.totalText}}" bindtap="ocrApply">填入总资产</view>
+          <view class="btn half" wx:elif="{{ocr.holdings.length}}" bindtap="ocrApplyHoldings">导入持仓</view>
+        </view>
+        <view class="btn ghost mt" wx:if="{{ocr.totalText && ocr.holdings.length}}" bindtap="ocrApplyHoldings" hover-class="btn-hover">
+          导入 {{ocr.holdings.length}} 只持仓并切到自动行情
+        </view>
+      </view>
+    </view>
+
+    <!-- 市值型：持仓明细，支持 AI 截图导入 + 输代码自动带出名字和现价 -->
+    <view class="hold" wx:if="{{mode === 'market' && updateMode === 'hold'}}">
+      <view class="hold-head">
+        <text class="eyebrow">持仓明细</text>
+        <text class="hold-tip">A 股 / 场内 ETF / 港股 · 输代码自动带出</text>
+      </view>
+      <view class="hold-shot">
+        <view class="shotbtn compact" bindtap="pickShot" hover-class="btn-hover">
+          <text class="shoticon">▣</text>
+          <view class="shotb">
+            <view class="shott">从持仓截图识别股票</view>
+            <view class="shots">选券商持仓页截图，AI 自动填入代码、股数和可用现金</view>
+          </view>
+        </view>
+        <view class="ocrbox" wx:if="{{ocr}}">
+          <view class="eyebrow">{{ocr.title}}</view>
+          <view class="ocrholds" wx:if="{{ocr.holdings.length}}">
+            <view class="ocrh" wx:for="{{ocr.holdings}}" wx:key="key">
+              <text class="ocrh-n">{{item.name || item.code}}</text>
+              <text class="ocrh-c">{{item.code || '需补代码'}}</text>
+              <text class="ocrh-s">{{item.shares}} 股</text>
+            </view>
+          </view>
+          <view class="ocrsub" wx:else>截图里没识别出个股持仓列表，只识别到账户汇总</view>
+          <view class="cline" wx:if="{{ocr.cashText}}"><text>可用资金</text><text class="cv">{{ocr.cashText}}</text></view>
+          <view class="cline" wx:if="{{ocr.netInText}}"><text>反推净转入</text><text class="cv">{{ocr.netInText}}</text></view>
+          <view class="ocrnote">截图已删除，只保留数字{{ocr.fallbackNote ? ' · ' + ocr.fallbackNote : ''}}</view>
+          <view class="btnrow">
+            <view class="btn ghost half" bindtap="ocrCancel">取消</view>
+            <view class="btn half" wx:if="{{ocr.holdings.length}}" bindtap="ocrApplyHoldings">导入 {{ocr.holdings.length}} 只持仓</view>
+            <view class="btn half" wx:elif="{{ocr.totalText}}" bindtap="ocrApply">填入总资产</view>
+          </view>
+        </view>
+      </view>
+      <view class="hrow" wx:for="{{holdings}}" wx:key="key">
+        <input class="hcode" placeholder="600036" placeholder-class="ph" value="{{item.code}}"
+               data-i="{{index}}" bindinput="onHoldCode" bindblur="onHoldBlur" />
+        <view class="hname">
+          <text class="hn {{item.status === 'error' ? 'bad' : ''}}">{{item.name || (item.status === 'loading' ? '查询中…' : item.status === 'error' ? '没查到' : '')}}</text>
+          <text class="hp" wx:if="{{item.priceText}}">{{item.priceText}}</text>
+        </view>
+        <input class="hshares" type="digit" placeholder="股数" placeholder-class="ph" value="{{item.shares}}"
+               data-i="{{index}}" bindinput="onHoldShares" />
+        <view class="hdel" data-i="{{index}}" bindtap="delHold">×</view>
+      </view>
+      <view class="addhold" bindtap="addHold" hover-class="btn-hover">＋ 加一只</view>
+      <view class="hold-sum" wx:if="{{holdSumText}}">持仓市值 <text class="v">{{holdSumText}}</text>
+        <text class="hold-fx" wx:if="{{fxText}}"> · {{fxText}}</text></view>
+    </view>
+
+  </view>
+
+  <!-- 保存后自动得到什么 / 已有资产的实时计算 -->
+  <view class="calcbox" wx:if="{{calc.length}}">
+    <view class="eyebrow">{{isNew ? '保存后自动得到' : '今天的计算结果'}}</view>
+    <view class="cline" wx:for="{{calc}}" wx:key="k">
+      <text>{{item.k}}</text>
+      <text class="cv {{item.cls}}">{{item.v}}</text>
+    </view>
+  </view>
+
+  <!-- 存单真正的流动性 -->
+  <view class="truth" wx:if="{{earlyNote}}">
+    <view class="stripe"></view>
+    <view class="ttext">{{earlyNote}}</view>
+  </view>
+
+  <!-- 存单快到期 / 已到期：一键转存 -->
+  <view class="sec" wx:if="{{canRoll && !rollOpen}}">
+    <view class="btn ghost" bindtap="openRoll" hover-class="btn-hover">到期转存 →</view>
+  </view>
+  <view class="sec" wx:if="{{rollOpen}}">
+    <view class="sec-head"><text class="eyebrow">到期转存</text><text class="tot">起息 {{rollStart}}</text></view>
+    <view class="rows">
+      <view class="field">
+        <text class="fl">新期限</text>
+        <picker mode="selector" range="{{termLabels}}" value="{{roll.termIndex}}" bindchange="onRollTerm">
+          <view class="fi">{{termLabels[roll.termIndex]}}</view>
+        </picker>
+      </view>
+      <view class="field">
+        <text class="fl">新利率</text>
+        <input class="fi" type="digit" value="{{roll.rate}}" placeholder="按新一期的挂牌利率" placeholder-class="ph" bindinput="onRollRate" />
+        <text class="fu">%</text>
+      </view>
+      <view class="field last">
+        <text class="fl">利息一起转</text>
+        <switch checked="{{roll.includeInterest}}" color="#B89A5E" bindchange="onRollInterest" />
+      </view>
+    </view>
+    <view class="calcbox">
+      <view class="cline"><text>转存本金</text><text class="cv">{{rollPrincipal}}</text></view>
+      <view class="cline"><text>新到期日</text><text class="cv">{{rollMaturity}}</text></view>
+      <view class="cline" wx:if="{{rollAtMaturity}}"><text>新一期到期本息</text><text class="cv">{{rollAtMaturity}}</text></view>
+    </view>
+    <view class="btnrow">
+      <view class="btn ghost half" bindtap="closeRoll">取消</view>
+      <view class="btn half" bindtap="doRoll">确认转存</view>
+    </view>
+    <view class="note-box">旧存单会标记为「已转存」并从列表消失，新存单接着算。两张之间有关联，以后能追溯。</view>
+  </view>
+
+  <view class="sec">
+    <view class="btn" bindtap="save" hover-class="btn-hover">{{isNew ? '保存' : '保存修改'}}</view>
+    <view class="btn ghost mt" wx:if="{{!isNew}}" bindtap="close" hover-class="btn-hover">
+      这笔已经结清 / 不再持有
+    </view>
+  </view>
+
+  <view class="note-box">
+    六种类型覆盖全部家庭资产与负债。加新项目时只要能归进其中一种，就不用改代码。
+  </view>
+  </block>
+  <view style="height:120rpx"></view>
+</view>

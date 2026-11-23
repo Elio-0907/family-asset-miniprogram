@@ -1,0 +1,100 @@
+<view class="page {{masked ? 'masked' : ''}}" wx:if="{{loaded}}">
+  <view class="pagetop">
+    <view class="pagetitle">到期安排</view>
+    <view class="pagesub">存单与外债共用同一条时间轴</view>
+  </view>
+
+  <!-- A. 按半年分格：哪段时间到期的钱最多，一眼看完 -->
+  <view class="card chart" wx:if="{{buckets.length}}">
+    <view class="card-h">
+      <text class="eyebrow">到期本金 · 按半年</text>
+      <view class="lg"><view class="lgd t-cd"></view><text>存单</text><view class="lgd t-rc"></view><text>外债</text></view>
+    </view>
+    <view class="bars">
+      <view class="bk" wx:for="{{buckets}}" wx:key="key">
+        <view class="bkv">{{item.label}}</view>
+        <view class="bkcol">
+          <view class="seg t-rc" style="height:{{item.rcPct}}%"></view>
+          <view class="seg t-cd {{item.top ? 'hot' : ''}}" style="height:{{item.cdPct}}%"></view>
+        </view>
+        <view class="bkl {{item.now ? 'now' : ''}}">{{item.key}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- B. 存单梯子：每笔从起息到到期一条带，看期限怎么排的 -->
+  <view class="card chart" wx:if="{{ladder.length}}">
+    <view class="card-h">
+      <text class="eyebrow">期限结构</text>
+      <text class="lgt">深色 = 已过 · 浅色 = 还剩</text>
+    </view>
+    <view class="ld" wx:for="{{ladder}}" wx:key="id" data-id="{{item.id}}" bindtap="openDetail" hover-class="btn-hover">
+      <view class="ldl">
+        <view class="ldn">{{item.name}}</view>
+        <view class="lds">{{item.term}}{{item.rate ? ' · ' + item.rate : ''}}</view>
+      </view>
+      <view class="ldt">
+        <view class="ldbar {{item.tone}}" style="left:{{item.x0}}%;width:{{item.w}}%">
+          <view class="lddone" style="width:{{item.donePct}}%"></view>
+          <view class="ldnotch" wx:for="{{item.notches}}" wx:for-item="n" wx:key="*this" style="left:{{n}}%"></view>
+        </view>
+        <view class="ldnow" style="left:{{todayPct}}%"></view>
+      </view>
+    </view>
+    <view class="ldaxis">
+      <view class="ldtick" wx:for="{{axisTicks}}" wx:key="label" style="left:{{item.x}}%">
+        <view class="ldtl"></view><text class="ldtt {{item.today ? 'now' : ''}}">{{item.label}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="insight" wx:if="{{insight}}">
+    <view class="stripe"></view>
+    <view class="itext">{{insight}}</view>
+  </view>
+
+  <block wx:for="{{groups}}" wx:key="title">
+    <view class="tl-y">
+      <text class="eyebrow">{{item.title}}</text>
+      <view class="hr"></view>
+    </view>
+    <view class="sec" style="padding-top:0">
+      <view class="rows" style="border-top:0">
+        <block wx:for="{{item.items}}" wx:for-item="row" wx:for-index="ri" wx:key="id">
+          <view class="row" data-id="{{row.id}}" data-g="{{index}}" data-r="{{ri}}"
+                bindtap="openDetail" hover-class="btn-hover">
+            <view class="swatch tone-{{row.tone}}"></view>
+            <view class="b">
+              <view class="t">{{row.name}}</view>
+              <view class="s">{{row.sub}}</view>
+            </view>
+            <view class="r">
+              <view class="v">{{row.value}}</view>
+              <view class="d {{row.cls}}">{{row.days}}</view>
+            </view>
+            <text class="chev {{row.expanded ? 'open' : ''}}" wx:if="{{row.group}}">›</text>
+          </view>
+          <block wx:if="{{row.group && row.expanded}}">
+            <view class="row sub" wx:for="{{row.children}}" wx:for-item="c" wx:key="id"
+                  data-id="{{c.id}}" bindtap="openDetail" hover-class="btn-hover">
+              <view class="b">
+                <view class="t">{{c.sub}}</view>
+              </view>
+              <view class="r">
+                <view class="v">{{c.value}}</view>
+                <view class="d {{c.cls}}">{{c.days}}</view>
+              </view>
+            </view>
+          </block>
+        </block>
+      </view>
+    </view>
+  </block>
+
+  <view class="empty" wx:if="{{!groups.length}}">
+    <view class="big">没有带到期日的资产</view>
+    <view>存单和借出去的钱记上之后，会在这里排成时间轴</view>
+  </view>
+  <view style="height:160rpx"></view>
+</view>
+<view class="empty" wx:else>正在读取……</view>

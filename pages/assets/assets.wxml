@@ -1,0 +1,46 @@
+<view class="page {{masked ? 'masked' : ''}}" wx:if="{{loaded}}">
+  <view class="pagetop">
+    <view class="pagetitle">全部资产</view>
+    <view class="pagesub">按流动性分层，房车与负债仅计入底部净资产</view>
+  </view>
+
+  <block wx:for="{{layers}}" wx:key="key">
+    <view class="sec" wx:if="{{item.rows.length}}">
+      <view class="sec-head">
+        <text class="eyebrow">{{item.title}}</text>
+        <text class="tot">{{item.total}}</text>
+      </view>
+      <view class="rows">
+        <view class="row" wx:for="{{item.rows}}" wx:for-item="row" wx:key="id"
+              data-id="{{row.id}}" bindtap="openDetail" hover-class="btn-hover">
+          <view class="swatch tone-{{row.tone}}"></view>
+          <view class="b">
+            <view class="t">{{row.name}}</view>
+            <view class="s">{{row.sub}}</view>
+          </view>
+          <view class="r">
+            <view class="v">{{row.value}}</view>
+            <view class="d {{row.cls}}">{{row.delta}}</view>
+          </view>
+          <text class="chev">›</text>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <view class="networth">
+    <text>净资产</text>
+    <text class="v">{{netCny}}</text>
+  </view>
+
+  <view class="sec">
+    <view class="btn ghost" bindtap="add" hover-class="btn-hover">＋ 记一笔新资产</view>
+  </view>
+
+  <view class="empty" wx:if="{{!hasAny}}">
+    <view class="big">还是空的</view>
+    <view>从最大的那张存单开始记，最省事</view>
+  </view>
+  <view style="height:160rpx"></view>
+</view>
+<view class="empty" wx:else>正在读取……</view>

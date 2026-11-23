@@ -1,0 +1,108 @@
+/* 进度卡 */
+.prog-card { padding: 28rpx; border-radius: 24rpx; background: var(--card); }
+.prog-top { display: flex; justify-content: space-between; align-items: baseline; }
+.prog-t { font-size: 28rpx; font-weight: 600; color: var(--text); }
+.prog-v { font-size: 25rpx; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.prog-track { height: 14rpx; border-radius: 999rpx; background: var(--surface-2);
+              overflow: hidden; margin: 20rpx 0 14rpx; }
+.prog-fill { height: 100%; border-radius: 999rpx; background: var(--tint);
+             transition: width .2s ease; }
+.prog-s { font-size: 23rpx; color: var(--text-2); line-height: 1.5; }
+
+.ck-link { font-size: 23rpx; color: var(--tint); }
+
+/* 盘点卡片 */
+.ck-item { background: var(--card); border-radius: 24rpx; margin-bottom: 18rpx;
+           overflow: hidden; }
+.ck-item.done { opacity: 0.85; }
+.ck-head { display: flex; align-items: center; padding: 26rpx 26rpx; }
+.ck-dot { width: 40rpx; height: 40rpx; border-radius: 50%; border: 2rpx solid var(--line);
+          margin-right: 20rpx; flex: none; display: flex; align-items: center;
+          justify-content: center; font-size: 24rpx; font-weight: 700; color: #FFFFFF; }
+.ck-dot.on { background: var(--tint); border-color: var(--tint); }
+.ck-b { flex: 1; min-width: 0; }
+.ck-t { font-size: 28rpx; font-weight: 600; color: var(--text); }
+.ck-s { font-size: 22rpx; color: var(--text-2); margin-top: 6rpx; line-height: 1.4; }
+.ck-r { text-align: right; margin-left: 16rpx; flex: none; }
+.ck-v { font-size: 29rpx; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+.ck-st { font-size: 21rpx; color: var(--text-3); margin-top: 6rpx; }
+.ck-st.ok { color: var(--tint); font-weight: 500; }
+
+.ck-body { padding: 0 26rpx 24rpx; border-top: 1rpx solid var(--hair); }
+.ck-acts { display: flex; flex-wrap: wrap; gap: 14rpx; padding-top: 20rpx; }
+.ck-act { padding: 14rpx 24rpx; border-radius: 14rpx; font-size: 24rpx; font-weight: 500;
+          background: var(--surface-2); color: var(--text); }
+.ck-act.pri { background: var(--tint-soft); color: var(--tint-deep); }
+.ck-act.ghost { background: transparent; border: 1rpx solid var(--line); color: var(--text-2); }
+
+/* 原地编辑 */
+.ck-inline { margin-top: 18rpx; padding: 20rpx 22rpx; border-radius: 16rpx; background: var(--surface-2); }
+.ck-inrow { display: flex; align-items: center; }
+.ck-inl { font-size: 25rpx; color: var(--text-2); margin-right: 16rpx; flex: none; }
+.ck-ini { flex: 1; font-size: 30rpx; font-weight: 600; text-align: right; color: var(--text);
+          font-variant-numeric: tabular-nums; }
+.fu { font-size: 24rpx; color: var(--text-3); margin-left: 10rpx; }
+.ph { color: var(--text-3); }
+
+/* 原地 AI 识图确认 */
+.ck-ocr { margin-top: 18rpx; padding: 20rpx 22rpx; border-radius: 16rpx; background: var(--surface-2); }
+.cline { display: flex; justify-content: space-between; align-items: baseline;
+         font-size: 25rpx; color: var(--text-2); padding: 8rpx 0; }
+.cv { font-size: 27rpx; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+.ocropts { display: flex; flex-direction: column; gap: 10rpx; margin: 12rpx 0 8rpx; }
+.ocropt { display: flex; justify-content: space-between; align-items: baseline;
+          padding: 16rpx 20rpx; border-radius: 14rpx; background: var(--card);
+          border: 2rpx solid transparent; }
+.ocropt.on { border-color: var(--tint); background: var(--tint-soft); }
+.ocropt-l { font-size: 25rpx; color: var(--text-2); }
+.ocropt.on .ocropt-l { color: var(--tint); font-weight: 600; }
+.ocropt-v { font-size: 27rpx; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+.ocr-hint { font-size: 22rpx; color: var(--text-2); margin-top: 8rpx; line-height: 1.5; }
+.ocrnote { font-size: 21rpx; color: var(--text-3); margin-top: 10rpx; }
+
+.btnrow { display: flex; margin-top: 18rpx; }
+.btn.half { flex: 1; margin-right: 14rpx; }
+.btn.half:last-child { margin-right: 0; }
+.btn.sm { padding: 20rpx; font-size: 25rpx; border-radius: 16rpx; }
+.btn.mt { margin-top: 20rpx; }
+
+/* 折叠自动追踪 */
+.layer.open { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.rows.inlayer { border-top-left-radius: 0; border-top-right-radius: 0; border-top: 1rpx solid var(--hair); }
+.chev.down { transform: rotate(90deg); }
+.layer .chev { transition: transform .15s ease; }
+
+/* 备忘 */
+.note-card { padding: 24rpx 28rpx; border-radius: 24rpx; background: var(--card); }
+.note-input { margin-top: 14rpx; font-size: 27rpx; color: var(--text); width: 100%; }
+
+/* 月报卡 */
+.rpt-card { padding: 36rpx 32rpx; border-radius: 28rpx; background: var(--head-bg); color: var(--head-text); }
+.rpt-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 24rpx; }
+.rpt-top .eyebrow { color: var(--head-dim); }
+.rpt-meta { font-size: 22rpx; color: var(--head-dim); }
+.rpt-label { font-size: 24rpx; color: var(--head-dim); }
+.rpt-num { font-size: 62rpx; font-weight: 700; margin-top: 8rpx; letter-spacing: -0.02em;
+           font-variant-numeric: tabular-nums; }
+.rpt-delta { margin-top: 14rpx; font-size: 26rpx; font-weight: 500; font-variant-numeric: tabular-nums; }
+.rpt-delta.up { color: #F0806E; }
+.rpt-delta.down { color: #6FC29D; }
+.rpt-delta.flat { color: var(--head-dim); font-weight: 400; font-size: 23rpx; }
+.rpt-sub { margin-top: 26rpx; padding-top: 22rpx; border-top: 1rpx solid var(--head-line);
+           display: flex; align-items: baseline; font-size: 24rpx; color: var(--head-dim); }
+.rpt-subv { margin-left: 14rpx; font-size: 28rpx; font-weight: 600; color: var(--head-text); }
+.rpt-subd { margin-left: auto; font-size: 24rpx; font-variant-numeric: tabular-nums; }
+.rpt-subd.up { color: #F0806E; }
+.rpt-subd.down { color: #6FC29D; }
+.rpt-note { margin-top: 20rpx; font-size: 24rpx; color: var(--head-dim); line-height: 1.6; }
+
+/* 走势柱状图 */
+.trend-card { padding: 30rpx 24rpx 24rpx; border-radius: 24rpx; background: var(--card); }
+.tbars { display: flex; align-items: flex-end; justify-content: space-between; height: 260rpx; }
+.tb { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; }
+.tbv { font-size: 20rpx; color: var(--text-2); margin-bottom: 10rpx; font-variant-numeric: tabular-nums; }
+.tbcol { flex: 1; width: 42rpx; display: flex; align-items: flex-end; }
+.tbbar { width: 100%; border-radius: 10rpx 10rpx 4rpx 4rpx; background: var(--c4); }
+.tbbar.cur { background: var(--tint); }
+.tbl { font-size: 21rpx; color: var(--text-3); margin-top: 12rpx; }
+.tbl.cur { color: var(--tint); font-weight: 600; }

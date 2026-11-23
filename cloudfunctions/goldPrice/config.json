@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "openapi": []
+  },
+  "triggers": [
+    {
+      "name": "goldDaily",
+      "type": "timer",
+      "config": "0 0 16 * * * *"
+    }
+  ],
+  "timeout": 20,
+  "memorySize": 256
+}

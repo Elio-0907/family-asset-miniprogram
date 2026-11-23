@@ -1,0 +1,239 @@
+<!-- 生物解锁遮罩：未解锁前不渲染任何金额 -->
+<view class="lock-screen" wx:if="{{locked}}">
+  <view class="lock-box">
+    <view class="lock-badge">家底</view>
+    <view class="lock-title">家庭资产已受保护</view>
+    <view class="lock-sub">请通过 {{lockLabel}} 验证以继续查看</view>
+    <view class="btn lock-btn" bindtap="doUnlock" hover-class="btn-hover">使用 {{lockLabel}} 解锁</view>
+  </view>
+</view>
+
+<view class="page" wx:elif="{{loaded}}">
+
+  <!-- 顶部墨块：可动用金融资产 -->
+  <view class="head {{bg ? 'has-bg' : ''}}">
+    <image class="head-bg" wx:if="{{bg}}" src="{{bg}}" mode="aspectFill" />
+    <view class="head-shade" wx:if="{{bg}}"></view>
+    <view class="head-in">
+    <view class="head-top">
+      <text class="eyebrow">{{headMode === 'net' ? (debt.show ? '净资产 · 已扣负债' : '净资产 · 含房车外债') : '可动用金融资产'}}</text>
+      <view class="head-btns">
+        <view class="eye" bindtap="pickBg">背景</view>
+        <view class="eye" bindtap="toggleMask">{{masked ? '显示' : '隐藏'}}</view>
+      </view>
+    </view>
+    <view class="total" bindtap="toggleHead" hover-class="head-hover">
+      <text class="cur">¥</text><text>{{masked ? '••••••' : (headMode === 'net' ? netText : liquidText)}}</text>
+      <text class="swap">⇄</text>
+    </view>
+    <view class="head-sub" wx:if="{{headMode !== 'net'}}">
+      <text>固收加权年化 </text><text class="v">{{rateText}}</text>
+      <text class="sep">·</text>
+      <text>已计利息 </text><text class="v">{{masked ? '¥••••' : accruedText}}</text>
+    </view>
+    <view class="head-sub" wx:else>
+      <text>可动用 </text><text class="v">{{masked ? '¥••••' : liquidCny}}</text>
+      <block wx:if="{{debt.show}}">
+        <text class="sep">·</text>
+        <text>负债 </text><text class="v">{{masked ? '−¥••••' : debt.value}}</text>
+      </block>
+      <block wx:else>
+        <text class="sep">·</text>
+        <text>点数字切回</text>
+      </block>
+    </view>
+
+    <view class="bar" wx:if="{{curSegs.length}}" bindtap="goAllocation">
+      <view wx:for="{{curSegs}}" wx:key="k" class="seg tone-{{item.tone}}" style="width:{{item.w}}%"></view>
+    </view>
+    <view class="legend" wx:if="{{curSegs.length}}" bindtap="goAllocation">
+      <view class="li" wx:for="{{curSegs}}" wx:key="k">
+        <view class="dot tone-{{item.tone}}"></view>
+        <text>{{item.name}}</text>
+        <text class="pc">{{item.pc}}%</text>
+      </view>
+    </view>
+    <view class="alloc-bar {{alloc.cls}}" wx:if="{{headMode !== 'net' && alloc.show}}" bindtap="goAllocation" hover-class="head-hover">
+      <view class="alloc-dot" wx:if="{{alloc.drifted}}"></view>
+      <text class="alloc-txt">{{alloc.text}}</text>
+      <text class="alloc-go">{{alloc.cta}} ›</text>
+    </view>
+    </view>
+  </view>
+
+  <!-- 快捷入口组：退休计划 + 每月 10 分钟盘点（紧凑排布） -->
+  <view class="sec tight" wx:if="{{goalLine || checkin.show}}">
+    <view class="layer goalrow" wx:if="{{goalLine}}" bindtap="goForecast" hover-class="btn-hover">
+      <view class="b">
+        <view class="t">{{goalName}}</view>
+        <view class="s">{{goalLine}}</view>
+      </view>
+      <text class="v goalpct">{{goalPct}}%</text>
+      <text class="chev">›</text>
+    </view>
+
+    <view class="layer ckrow" wx:if="{{checkin.show}}" bindtap="goCheckin" hover-class="btn-hover">
+      <view class="b">
+        <view class="t">{{checkin.title}}</view>
+        <view class="s">
+          <text wx:if="{{checkin.deltaText}}">较上月 {{masked ? '¥••••' : checkin.deltaText}} · </text>
+          <text>{{checkin.sub}}</text>
+        </view>
+      </view>
+      <text class="ckpill {{checkin.done ? 'done' : ''}}">{{checkin.badge}}</text>
+      <text class="chev">›</text>
+    </view>
+  </view>
+
+  <!-- 需要处理：只放你今天动手就能办的事 -->
+  <view class="sec tight" wx:if="{{alerts.length}}">
+    <view class="sec-head"><text class="eyebrow">需要处理</text></view>
+    <view class="alert soon" wx:for="{{alerts}}" wx:key="id"
+          data-id="{{item.id}}" bindtap="openDetail" hover-class="btn-hover">
+      <view class="stripe"></view>
+      <view class="b">
+        <view class="t"><text class="tag soon">{{item.tag}}</text>{{item.name}}</view>
+        <view class="s">{{item.dueDate}} 到期 · 到期本息 {{masked ? '¥••••' : item.maturityText}}{{item.extraSub ? ' · ' + item.extraSub : ''}}</view>
+      </view>
+      <text class="v">{{masked ? '¥••••' : item.value}}</text>
+    </view>
+  </view>
+
+  <!-- 三层资产折叠组：紧凑排布，不再每层大白缝 -->
+  <view class="sec tight">
+    <view class="layer {{liquidOpen ? 'open' : ''}}" bindtap="toggleLiquid" hover-class="btn-hover">
+      <view class="b">
+        <view class="t">可动用金融资产</view>
+        <view class="s">{{liquidSub}}</view>
+      </view>
+      <text class="v">{{masked ? '¥••••••' : liquidCny}}</text>
+      <text class="chev {{liquidOpen ? 'down' : ''}}">›</text>
+    </view>
+    <view class="rows inlayer" wx:if="{{liquidOpen}}">
+      <view class="row" wx:for="{{liquidRows}}" wx:key="id"
+            data-id="{{item.id}}" bindtap="openDetail" hover-class="btn-hover">
+        <view class="swatch tone-{{item.tone}}"></view>
+        <view class="b">
+          <view class="t">{{item.name}}</view>
+          <view class="s">{{item.sub}}</view>
+        </view>
+        <view class="r">
+          <view class="v">{{masked ? '¥••••' : item.value}}</view>
+          <view class="d {{item.deltaClass}}">{{item.delta}}</view>
+        </view>
+        <text class="chev">›</text>
+      </view>
+    </view>
+    <!-- 空账本：新用户第一次打开，两条路摆清楚 -->
+    <view class="onboard" wx:if="{{!liquidRows.length && !recv.show && !fixed.show && !debt.show}}">
+      <view class="ob-t">这是一本空账本</view>
+      <view class="ob-s">两种情况，选一个：</view>
+      <view class="ob-btn primary" bindtap="goFamily" hover-class="btn-hover">
+        <view class="ob-bt">家人已经在用了</view>
+        <view class="ob-bs">输入家人给你的 6 位邀请码，看到同一份账本</view>
+      </view>
+      <view class="ob-btn" bindtap="goAdd" hover-class="btn-hover">
+        <view class="ob-bt">我来开始记</view>
+        <view class="ob-bs">从最大的那张存单开始</view>
+      </view>
+    </view>
+
+    <!-- 外债和房车：默认收起，点一下展开。不进首页提醒 -->
+    <block wx:if="{{recv.show}}">
+      <view class="layer {{recvOpen ? 'open' : ''}}" bindtap="toggleRecv" hover-class="btn-hover">
+        <view class="b">
+          <view class="t">应收外债</view>
+          <view class="s">{{recv.sub}}</view>
+        </view>
+        <text class="v">{{masked ? '¥••••••' : recv.value}}</text>
+        <text class="chev {{recvOpen ? 'down' : ''}}">›</text>
+      </view>
+      <view class="rows inlayer" wx:if="{{recvOpen}}">
+        <view class="row" wx:for="{{recvRows}}" wx:key="id"
+              data-id="{{item.id}}" bindtap="openDetail" hover-class="btn-hover">
+          <view class="swatch tone-{{item.tone}}"></view>
+          <view class="b">
+            <view class="t">{{item.name}}</view>
+            <view class="s">{{item.sub}}</view>
+          </view>
+          <view class="r">
+            <view class="v">{{masked ? '¥••••' : item.value}}</view>
+            <view class="d {{item.deltaClass}}">{{item.delta}}</view>
+          </view>
+          <text class="chev">›</text>
+        </view>
+      </view>
+    </block>
+
+    <block wx:if="{{fixed.show}}">
+      <view class="layer {{fixedOpen ? 'open' : ''}}" bindtap="toggleFixed" hover-class="btn-hover">
+        <view class="b">
+          <view class="t">固定资产</view>
+          <view class="s">{{fixed.sub}}</view>
+        </view>
+        <text class="v">{{masked ? '¥••••••' : fixed.value}}</text>
+        <text class="chev {{fixedOpen ? 'down' : ''}}">›</text>
+      </view>
+      <view class="rows inlayer" wx:if="{{fixedOpen}}">
+        <view class="row" wx:for="{{fixedRows}}" wx:key="id"
+              data-id="{{item.id}}" bindtap="openDetail" hover-class="btn-hover">
+          <view class="swatch tone-{{item.tone}}"></view>
+          <view class="b">
+            <view class="t">{{item.name}}</view>
+            <view class="s">{{item.sub}}</view>
+          </view>
+          <view class="r">
+            <view class="v">{{masked ? '¥••••' : item.value}}</view>
+            <view class="d {{item.deltaClass}}">{{item.delta}}</view>
+          </view>
+          <text class="chev">›</text>
+        </view>
+      </view>
+    </block>
+    <block wx:if="{{debt.show}}">
+      <view class="layer {{debtOpen ? 'open' : ''}}" bindtap="toggleDebt" hover-class="btn-hover">
+        <view class="b">
+          <view class="t">负债</view>
+          <view class="s">{{debt.countText}}<text wx:if="{{debt.monthlyText}}"> · 月供 {{masked ? '¥••••' : debt.monthlyText}}</text></view>
+        </view>
+        <text class="v">{{masked ? '−¥••••••' : debt.value}}</text>
+        <text class="chev {{debtOpen ? 'down' : ''}}">›</text>
+      </view>
+      <view class="rows inlayer" wx:if="{{debtOpen}}">
+        <view class="row" wx:for="{{debtRows}}" wx:key="id"
+              data-id="{{item.id}}" bindtap="openDetail" hover-class="btn-hover">
+          <view class="swatch tone-{{item.tone}}"></view>
+          <view class="b">
+            <view class="t">{{item.name}}</view>
+            <view class="s">{{item.sub}}</view>
+          </view>
+          <view class="r">
+            <view class="v">{{masked ? '−¥••••' : item.value}}</view>
+            <view class="d flat" wx:if="{{item.delta}}">{{masked ? '月供 ¥•••' : item.delta}}</view>
+          </view>
+          <text class="chev">›</text>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view class="sec tight">
+    <view class="networth insec">
+      <text>净资产</text>
+      <text class="v">{{masked ? '¥••••••' : netCny}}</text>
+    </view>
+
+    <view class="layer" bindtap="goFamily" hover-class="btn-hover">
+      <view class="b">
+        <view class="t">家庭账本与隐私锁</view>
+        <view class="s">{{familyText}}</view>
+      </view>
+      <text class="chev">›</text>
+    </view>
+  </view>
+
+  <view class="note-box" wx:if="{{staleNote}}">{{staleNote}}</view>
+  <view style="height:160rpx"></view>
+</view>
+
+<view class="empty" wx:else>正在读取……</view>

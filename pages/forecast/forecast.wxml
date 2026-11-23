@@ -1,0 +1,138 @@
+<view class="page {{masked ? 'masked' : ''}}" wx:if="{{loaded}}">
+  <view class="pagetop">
+    <view class="pagetitle">{{goal.name}}</view>
+    <view class="pagesub">只算可动用金融资产，房子车子不算</view>
+  </view>
+
+  <!-- 目标卡：日期是主角 -->
+  <view class="goal">
+    <view class="g-eyebrow">按现在的节奏，预计</view>
+    <view class="g-date" wx:if="{{goalDateText}}">{{goalDateText}}</view>
+    <view class="g-date none" wx:else>算不出来</view>
+    <view class="g-left" wx:if="{{goalLeft}}">还有 {{goalLeft}}</view>
+    <view class="g-left none" wx:elif="{{!goalDateText}}">按现在的存法 40 年内到不了，往下调调看</view>
+    <view class="g-left done" wx:else>已经到了</view>
+
+    <view class="g-track">
+      <view class="g-fill" style="width:{{goalPct}}%"></view>
+    </view>
+    <view class="g-nums">
+      <text class="v">{{liquidText}}</text>
+      <text class="g-target" bindtap="editGoal">目标 <text class="v">{{goalAmountText}}</text> · 改</text>
+    </view>
+
+    <!-- 里程碑：走过的留下日期，没走的是预计 -->
+    <view class="ms">
+      <view class="msi {{item.done ? 'done' : ''}}" wx:for="{{milestones}}" wx:key="amount">
+        <view class="msd"></view>
+        <view class="msa">{{item.label}}</view>
+        <view class="mst">{{item.when}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="chartbox">
+    <canvas type="2d" id="fc" class="fc"></canvas>
+  </view>
+
+  <!-- 到那天时，钱是怎么来的 -->
+  <view class="sec" wx:if="{{goalDateText}}">
+    <view class="sec-head"><text class="eyebrow">到 {{goalDateText}} 时</text><text class="tot">{{goalTotalText}}</text></view>
+    <view class="break">
+      <view class="bi"><view class="sw tone-1"></view><text>现有本息（已锁定）</text><text class="bv">{{lockedText}}</text></view>
+      <view class="bi"><view class="sw tone-3"></view><text>你存入的（已扣支出）</text><text class="bv">{{contribText}}</text></view>
+      <view class="bi"><view class="sw hatch"></view><text>假设收益</text><text class="bv">{{assumedText}}</text></view>
+      <view class="bi sub"><text>└ 存款与再投利息</text><text class="bv">{{aIntText}}</text></view>
+      <view class="bi sub"><text>└ 股票涨跌</text><text class="bv">{{aMktText}}</text></view>
+    </view>
+    <view class="summary">{{summary}}</view>
+  </view>
+
+  <view class="sec">
+    <view class="sec-head"><text class="eyebrow">你能控制的</text></view>
+    <view class="card">
+      <view class="ctrl">
+        <view class="ctop"><text class="cl">每月存入</text><text class="cv">¥{{cfgView.monthly}}</text></view>
+        <slider min="0" max="30000" step="500" value="{{cfgView.monthlyRaw}}" activeColor="#B89A5E"
+                block-size="20" data-k="monthly" bindchanging="onSlide" bindchange="onSlideEnd" />
+        <view class="cnote" wx:if="{{monthlyDebtText}}">当前月供合计 {{monthlyDebtText}}，这里请填扣完月供后的净结余</view>
+      </view>
+      <view class="ctrl">
+        <view class="ctop"><text class="cl">年终奖等额外存入</text><text class="cv">¥{{cfgView.annual}}</text></view>
+        <slider min="0" max="500000" step="10000" value="{{cfgView.annualRaw}}" activeColor="#B89A5E"
+                block-size="20" data-k="annual" bindchanging="onSlide" bindchange="onSlideEnd" />
+        <view class="cnote">每年 1 月计入</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="sec">
+    <view class="sec-head"><text class="eyebrow">收益率假设</text></view>
+    <view class="card">
+      <view class="ctrl">
+        <view class="ctop"><text class="cl">大额存单再投利率</text><text class="cv">{{cfgView.rate}}%</text></view>
+        <slider min="0" max="500" step="5" value="{{cfgView.rateRaw}}" activeColor="#B89A5E"
+                block-size="20" data-k="rate" bindchanging="onSlide" bindchange="onSlideEnd" />
+        <view class="scale"><text>0%</text><text>2.5%</text><text>5%</text></view>
+        <view class="cnote {{hotRate ? 'hot' : ''}}">{{rateNote}}</view>
+      </view>
+      <view class="ctrl">
+        <view class="ctop"><text class="cl">股票年化收益率</text><text class="cv">{{cfgView.eq}}%</text></view>
+        <slider min="-2000" max="2000" step="50" value="{{cfgView.eqRaw}}" activeColor="#B89A5E"
+                block-size="20" data-k="eqGrowth" bindchanging="onSlide" bindchange="onSlideEnd" />
+        <view class="scale"><text>−20%</text><text>0</text><text>+20%</text></view>
+        <view class="cnote {{hotEq ? 'hot' : ''}}">{{eqNote}}</view>
+      </view>
+      <view class="ctrl row-sw" wx:if="{{hasReceivable}}">
+        <text class="cl">外债按约定日收回并计入</text>
+        <switch checked="{{recoverReceivable}}" color="#B89A5E" bindchange="toggleRecv" />
+      </view>
+    </view>
+  </view>
+
+  <view class="sec">
+    <view class="sec-head">
+      <text class="eyebrow">计划支出</text>
+      <text class="tot">{{outTotal}}</text>
+    </view>
+    <view class="card">
+    <view class="ofl {{item.on ? 'on' : 'off'}}" wx:for="{{outflowsView}}" wx:key="idx"
+          data-idx="{{index}}" bindtap="toggleOut" bindlongpress="removeOut">
+      <view class="box">{{item.on ? '✓' : ''}}</view>
+      <view class="b">
+        <view class="t">{{item.name}}</view>
+        <view class="s">{{item.sub}}</view>
+      </view>
+      <text class="ov">−{{item.amount}}</text>
+    </view>
+    <view class="hintline" wx:if="{{outflowsView.length}}">点一下开关，长按删除</view>
+
+    <view wx:if="{{adding}}" class="addform">
+      <view class="field">
+        <text class="fl">名目</text>
+        <input class="fi" placeholder="换车 / 装修 / 学费" value="{{newOut.name}}" bindinput="onNewName" />
+      </view>
+      <view class="field">
+        <text class="fl">时间</text>
+        <picker mode="date" fields="month" value="{{newOut.date}}" bindchange="onNewDate">
+          <view class="fi right">{{newOut.date || '选择年月'}}</view>
+        </picker>
+      </view>
+      <view class="field">
+        <text class="fl">金额</text>
+        <input class="fi" type="digit" placeholder="180000" value="{{newOut.amount}}" bindinput="onNewAmount" />
+        <text class="fu">元</text>
+      </view>
+      <view class="btnrow">
+        <view class="btn soft half" bindtap="cancelAdd">取消</view>
+        <view class="btn tint half" bindtap="confirmAdd">加进来</view>
+      </view>
+    </view>
+    <view wx:else class="btn soft" bindtap="startAdd" hover-class="btn-hover">＋ 添加一笔计划支出</view>
+    </view>
+  </view>
+
+  <view class="note-box">日期是按你填的假设算的，不是承诺。存单在合同期内的利息是确定的，其余都是估算；黄金不做涨跌假设。</view>
+  <view style="height:160rpx"></view>
+</view>
+<view class="empty" wx:else>正在读取……</view>

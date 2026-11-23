@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "openapi": []
+  },
+  "triggers": [
+    {
+      "name": "snapshotDaily",
+      "type": "timer",
+      "config": "0 30 23 * * * *"
+    }
+  ],
+  "timeout": 20,
+  "memorySize": 256
+}

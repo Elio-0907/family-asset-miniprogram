@@ -1,0 +1,48 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/due/due",
+    "pages/assets/assets",
+    "pages/forecast/forecast",
+    "pages/edit/edit",
+    "pages/family/family",
+    "pages/checkin/checkin",
+    "pages/allocation/allocation"
+  ],
+  "window": {
+    "navigationBarTextStyle": "@navTxtStyle",
+    "navigationBarTitleText": "家底",
+    "navigationBarBackgroundColor": "@navBgColor",
+    "backgroundColor": "@bgColor",
+    "backgroundTextStyle": "light"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#9ba39e",
+    "selectedColor": "#1a2420",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "总览"
+      },
+      {
+        "pagePath": "pages/due/due",
+        "text": "到期"
+      },
+      {
+        "pagePath": "pages/assets/assets",
+        "text": "资产"
+      },
+      {
+        "pagePath": "pages/forecast/forecast",
+        "text": "退休计划"
+      }
+    ]
+  },
+  "darkmode": true,
+  "themeLocation": "theme.json",
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}

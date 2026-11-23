@@ -1,0 +1,12 @@
+{
+  "permissions": { "openapi": [] },
+  "timeout": 20,
+  "memorySize": 256,
+  "triggers": [
+    {
+      "name": "stockDaily",
+      "type": "timer",
+      "config": "0 40 15 * * * *"
+    }
+  ]
+}

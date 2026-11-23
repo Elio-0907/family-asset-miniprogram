@@ -1,0 +1,107 @@
+/* 未来五年 —— iOS 分组卡片风：浅灰底、白卡、细分割线、只留黄铜一个强调色 */
+page { --card: #FFFFFF; --seg: #E9EAE5; --hair: #ECEDE8; --tint: #B89A5E; --tint-soft: #F4EEDF; }
+@media (prefers-color-scheme: dark) {
+  page { --card: #1A211D; --seg: #262E29; --hair: #2B3430; --tint: #C6A464; --tint-soft: #2B2415; }
+}
+
+.fc-head { padding: 24rpx 40rpx 0; }
+
+/* 分段选择器：浅灰轨道，选中项是白色浮起的小块 */
+.seg { display: flex; padding: 6rpx; border-radius: 18rpx; background: var(--seg); margin-bottom: 30rpx; }
+.segi { flex: 1; padding: 14rpx 0; text-align: center; font-size: 25rpx; color: var(--text-2);
+        border-radius: 14rpx; transition: all .15s ease; }
+.segi.on { background: var(--card); color: var(--text); font-weight: 600;
+           box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.10), 0 0 0 1rpx rgba(0,0,0,0.03); }
+
+.total { font-size: 68rpx; font-weight: 600; letter-spacing: -0.025em;
+         font-variant-numeric: tabular-nums; line-height: 1.05; }
+.total .cur { font-size: 38rpx; font-weight: 500; color: var(--text-3); margin-right: 8rpx; }
+
+.break { margin-top: 26rpx; padding: 8rpx 26rpx; border-radius: 24rpx; background: var(--card); }
+.bi { display: flex; align-items: center; font-size: 25rpx; color: var(--text-2);
+      padding: 18rpx 0; border-bottom: 1rpx solid var(--hair); }
+.bi:last-child { border-bottom: none; }
+.bi .sw { width: 20rpx; height: 20rpx; border-radius: 6rpx; margin-right: 18rpx; flex: none; }
+.bi .sw.tone-1 { background: #B7BFB9; }
+.bi .sw.tone-3 { background: #D9C9A2; }
+.bi .sw.hatch { background: var(--tint-soft); border: 1rpx dashed var(--tint); }
+.bi .bv { margin-left: auto; font-weight: 600; color: var(--text);
+          font-variant-numeric: tabular-nums; font-size: 27rpx; }
+.bi.sub { padding: 10rpx 0 10rpx 38rpx; font-size: 23rpx; color: var(--text-3); border-bottom: none; }
+.bi.sub .bv { font-size: 24rpx; color: var(--text-2); font-weight: 500; }
+
+.chartbox { margin: 20rpx 40rpx 0; padding: 26rpx 18rpx 18rpx; background: var(--card); border-radius: 24rpx; }
+.fc { width: 100%; height: 380rpx; }
+
+.summary { margin: 20rpx 40rpx 0; padding: 24rpx 28rpx; border-radius: 24rpx; background: var(--card);
+           font-size: 25rpx; line-height: 1.7; color: var(--text-2); }
+
+/* 分组卡片 */
+.card { background: var(--card); border-radius: 24rpx; padding: 0 28rpx; }
+.ctrl { padding: 26rpx 0; border-bottom: 1rpx solid var(--hair); }
+.ctrl:last-child { border-bottom: none; }
+.ctop { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 2rpx; }
+.cl { font-size: 27rpx; color: var(--text); }
+.cv { font-size: 29rpx; font-weight: 600; color: var(--tint); font-variant-numeric: tabular-nums; }
+.cnote { font-size: 22rpx; color: var(--text-3); margin-top: 4rpx; line-height: 1.5; }
+.cnote.hot { color: var(--amber); }
+.scale { display: flex; justify-content: space-between; font-size: 19rpx;
+         color: var(--text-3); padding: 0 10rpx; margin-top: -6rpx; }
+.ctrl slider { margin: 6rpx 8rpx 0; }
+.row-sw { display: flex; align-items: center; justify-content: space-between; }
+
+.ofl { display: flex; align-items: center; padding: 24rpx 0; border-bottom: 1rpx solid var(--hair); }
+.ofl.off { opacity: 0.4; }
+.ofl .box { width: 40rpx; height: 40rpx; border-radius: 50%; border: 2rpx solid #C8CCC4;
+            margin-right: 22rpx; flex: none; display: flex; align-items: center;
+            justify-content: center; font-size: 22rpx; color: transparent; }
+.ofl.on .box { background: var(--tint); border-color: var(--tint); color: #fff; }
+.ofl .b { flex: 1; min-width: 0; }
+.ofl .t { font-size: 27rpx; font-weight: 500; }
+.ofl .s { font-size: 23rpx; color: var(--text-2); margin-top: 4rpx; }
+.ofl .ov { font-size: 28rpx; font-weight: 600; color: var(--text);
+           font-variant-numeric: tabular-nums; margin-left: 16rpx; }
+.hintline { font-size: 21rpx; color: var(--text-3); padding: 18rpx 0 6rpx; }
+
+.addform { padding: 8rpx 0 24rpx; }
+.field { display: flex; align-items: center; padding: 24rpx 0; border-bottom: 1rpx solid var(--hair); }
+.fl { font-size: 27rpx; color: var(--text); width: 140rpx; flex: none; }
+.fi { flex: 1; font-size: 28rpx; color: var(--text); text-align: right; }
+.fi.right { text-align: right; }
+.fu { font-size: 24rpx; color: var(--text-3); margin-left: 12rpx; }
+.btnrow { display: flex; margin-top: 28rpx; }
+.btn.half { flex: 1; margin-right: 16rpx; }
+.btn.half:last-child { margin-right: 0; }
+
+/* 这一页的按钮不用黑色：淡色 tint */
+.btn.soft { margin: 20rpx 0 24rpx; background: var(--tint-soft); color: var(--tint); border: none; font-weight: 600; }
+.btn.tint { background: var(--tint); color: #fff; }
+.btnrow .btn { margin-top: 0; margin-bottom: 0; }
+.btnrow .btn.half { margin-right: 16rpx; }
+.btnrow .btn.half:last-child { margin-right: 0; }
+
+/* ===== 目标卡 ===== */
+.goal { margin: 8rpx 40rpx 0; padding: 32rpx 30rpx 26rpx; border-radius: 28rpx; background: var(--card); }
+.g-eyebrow { font-size: 22rpx; color: var(--text-3); letter-spacing: 0.08em; }
+.g-date { font-size: 60rpx; font-weight: 700; letter-spacing: -0.02em; margin-top: 8rpx; line-height: 1.1;
+          font-variant-numeric: tabular-nums; }
+.g-date.none { font-size: 40rpx; color: var(--text-3); font-weight: 600; }
+.g-left { font-size: 27rpx; color: var(--text-2); margin-top: 10rpx; }
+.g-left.none { font-size: 23rpx; color: var(--text-3); }
+.g-left.done { color: var(--tint); font-weight: 600; }
+.g-track { height: 12rpx; border-radius: 6rpx; background: var(--hair); margin-top: 28rpx; overflow: hidden; }
+.g-fill { height: 100%; border-radius: 6rpx; background: var(--tint); }
+.g-nums { display: flex; justify-content: space-between; align-items: baseline; margin-top: 12rpx;
+          font-size: 23rpx; color: var(--text-3); }
+.g-nums .v { font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+.g-target .v { color: var(--text-2); }
+
+/* 里程碑 */
+.ms { display: flex; justify-content: space-between; margin-top: 30rpx; padding-top: 24rpx; border-top: 1rpx solid var(--hair); }
+.msi { flex: 1; display: flex; flex-direction: column; align-items: center; }
+.msd { width: 18rpx; height: 18rpx; border-radius: 50%; border: 2rpx solid var(--hair); background: var(--card); }
+.msi.done .msd { background: var(--tint); border-color: var(--tint); }
+.msa { font-size: 22rpx; font-weight: 600; margin-top: 10rpx; color: var(--text-3); }
+.msi.done .msa { color: var(--text); }
+.mst { font-size: 19rpx; color: var(--text-3); margin-top: 4rpx; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.msi.done .mst { color: var(--tint); }

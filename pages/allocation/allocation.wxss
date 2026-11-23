@@ -1,0 +1,81 @@
+/* 顶部对比卡 */
+.cmp-card { padding: 32rpx 28rpx; border-radius: 26rpx; background: var(--card); }
+.cmp-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18rpx; }
+.status-pill { font-size: 22rpx; font-weight: 600; padding: 6rpx 16rpx; border-radius: 999rpx; }
+.status-pill.ok { background: var(--surface-2); color: var(--jade); }
+.status-pill.warn { background: var(--amber-soft); color: var(--amber); }
+.status-pill.alert { background: var(--seal-soft); color: var(--seal); }
+.edit-link { font-size: 24rpx; color: var(--tint); font-weight: 500; }
+
+.cmp-head { font-size: 36rpx; font-weight: 700; color: var(--text); line-height: 1.35; }
+.cmp-sub { font-size: 23rpx; color: var(--text-2); margin-top: 10rpx; }
+.cmp-sub .v { font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+
+/* 上下双条对比 */
+.dual { margin-top: 28rpx; padding-top: 22rpx; border-top: 1rpx solid var(--hair); }
+.drow { display: flex; align-items: center; margin-bottom: 16rpx; }
+.drow:last-child { margin-bottom: 0; }
+.dl { width: 112rpx; flex: none; font-size: 22rpx; color: var(--text-2); }
+.dbar { flex: 1; display: flex; height: 22rpx; border-radius: 10rpx; overflow: hidden;
+        background: var(--surface-2); }
+.dseg { height: 100%; margin-right: 3rpx; }
+.dseg:last-child { margin-right: 0; }
+
+/* 行动建议卡 */
+.adv-card { padding: 24rpx 26rpx; border-radius: 24rpx; background: var(--card); }
+.adv-item { display: flex; align-items: flex-start; padding: 10rpx 0; }
+.adv-dot { width: 10rpx; height: 10rpx; border-radius: 50%; background: var(--tint);
+           margin: 14rpx 16rpx 0 0; flex: none; }
+.adv-txt { flex: 1; font-size: 25rpx; line-height: 1.65; color: var(--text); }
+
+/* 压力测试 */
+.truth { padding: 24rpx 26rpx; border-radius: 24rpx; background: var(--card); display: flex; }
+.truth .stripe { width: 6rpx; border-radius: 4rpx; background: var(--tint);
+                 margin-right: 20rpx; flex: none; }
+.ttext { font-size: 24rpx; line-height: 1.65; color: var(--text-2); }
+
+/* 预设方案 */
+.presets { display: flex; gap: 14rpx; }
+.preset { flex: 1; padding: 22rpx 18rpx; border-radius: 20rpx; background: var(--card);
+          border: 2rpx solid transparent; box-sizing: border-box; }
+.preset.on { border-color: var(--tint); background: var(--tint-soft); }
+.pt { font-size: 25rpx; font-weight: 600; color: var(--text); }
+.preset.on .pt { color: var(--tint-deep); }
+.ps { font-size: 20rpx; color: var(--text-2); margin-top: 6rpx; line-height: 1.4; }
+.pp { font-size: 20rpx; color: var(--text-3); margin-top: 10rpx; font-variant-numeric: tabular-nums; }
+
+/* 编辑器卡片 */
+.card { padding: 8rpx 26rpx 24rpx; border-radius: 24rpx; background: var(--card); }
+.sum-badge { font-size: 24rpx; font-weight: 600; font-variant-numeric: tabular-nums; }
+.sum-badge.ok { color: var(--jade); }
+.sum-badge.bad { color: var(--seal); }
+
+.ed-row { padding: 22rpx 0 10rpx; border-bottom: 1rpx solid var(--hair); }
+.ed-row:last-child { border-bottom: none; }
+.ed-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6rpx; }
+.ed-left { display: flex; align-items: center; }
+.ed-dot { width: 12rpx; height: 36rpx; border-radius: 6rpx; margin-right: 16rpx; flex: none; }
+.ed-name { font-size: 27rpx; font-weight: 600; color: var(--text); }
+.ed-desc { font-size: 21rpx; color: var(--text-3); margin-top: 2rpx; }
+.ed-inp-wrap { display: flex; align-items: baseline; background: var(--surface-2);
+               padding: 8rpx 16rpx; border-radius: 12rpx; }
+.ed-inp { width: 76rpx; font-size: 30rpx; font-weight: 600; text-align: right; color: var(--text);
+          font-variant-numeric: tabular-nums; }
+.ed-u { font-size: 23rpx; color: var(--text-3); margin-left: 4rpx; }
+.ed-meta { display: flex; justify-content: space-between; font-size: 21rpx; color: var(--text-3);
+           margin-top: -6rpx; padding-bottom: 6rpx; }
+.ed-meta .v { color: var(--text-2); font-variant-numeric: tabular-nums; }
+
+.sum-fix { margin-top: 18rpx; padding: 18rpx 20rpx; border-radius: 16rpx; background: var(--seal-soft);
+           display: flex; align-items: center; justify-content: space-between; }
+.sum-tip { font-size: 23rpx; color: var(--seal); font-weight: 500; }
+.fix-btn { padding: 10rpx 20rpx; border-radius: 12rpx; background: var(--card); color: var(--text);
+           font-size: 22rpx; font-weight: 600; }
+
+.th-val { font-size: 28rpx; font-weight: 600; color: var(--tint); font-variant-numeric: tabular-nums; }
+.ed-note { padding-top: 22rpx; }
+.note-in { margin-top: 12rpx; font-size: 26rpx; color: var(--text); width: 100%; }
+.ph { color: var(--text-3); }
+
+.btn.mt { margin-top: 20rpx; }
+.btn.disabled { opacity: 0.45; }

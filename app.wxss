@@ -1,0 +1,191 @@
+/* ============ 设计令牌 ============
+   墨绿黑 + 纸白 + 黄铜。红涨绿跌按国内习惯，红色只留给「涨」和真正的警示。 */
+page {
+  --bg: #EFF0EB;
+  --surface: #FFFFFF;
+  --surface-2: #F7F8F4;
+  --line: #E0E2DA;
+  --text: #1A2420;
+  --text-2: #6C7671;
+  --text-3: #9BA39E;
+  --head-bg: #1A2420;
+  --head-text: #EEF0EA;
+  --head-dim: #98A29C;
+  --head-line: #333E39;
+  --brass: #9A7B41;
+  --brass-soft: #F0E7D3;
+  --seal: #AF3A2B;
+  --seal-soft: #F7E3DF;
+  --jade: #2E6B52;
+  --amber: #7E6114;
+  --amber-soft: #F5EDD3;
+  --c1: #1A2420;
+  --c2: #9A7B41;
+  --c3: #727E78;
+  --c4: #BFC5C0;
+
+  /* iOS 分组卡片风 */
+  --card: #FFFFFF;
+  --hair: #ECEDE8;
+  --tint: #B89A5E;
+  --tint-soft: #F4EEDF;
+  --tint-deep: #9A7B41;
+
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  page {
+    --bg: #0D110F;
+    --surface: #171E1A;
+    --surface-2: #1E2622;
+    --line: #2B3430;
+    --text: #E5E9E2;
+    --text-2: #959E98;
+    --text-3: #6E7873;
+    --head-bg: #080B09;
+    --head-text: #E5E9E2;
+    --head-dim: #8A938D;
+    --head-line: #242D29;
+    --brass: #C6A464;
+    --brass-soft: #2B2415;
+    --seal: #D8604A;
+    --seal-soft: #33201B;
+    --jade: #5CA383;
+    --amber: #D2AF57;
+    --amber-soft: #2C2512;
+    --c1: #CBD3CD;
+    --c2: #C6A464;
+    --c3: #79847E;
+    --c4: #414B46;
+    --card: #1A211D;
+    --hair: #2B3430;
+    --tint: #C6A464;
+    --tint-soft: #2B2415;
+    --tint-deep: #E0C283;
+  }
+}
+
+.page { padding-bottom: 40rpx; }
+.num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+.eyebrow {
+  font-size: 21rpx; letter-spacing: 0.14em; color: var(--text-3);
+}
+
+/* ============ 顶部墨块 ============ */
+.head { background: var(--head-bg); color: var(--head-text); padding: 40rpx 40rpx 40rpx; }
+.head-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28rpx; }
+.head-top .eyebrow { color: var(--head-dim); }
+.eye { width: 64rpx; height: 64rpx; display: flex; align-items: center; justify-content: center;
+       border-radius: 16rpx; border: 1rpx solid var(--head-line); color: var(--head-dim); font-size: 26rpx; }
+.total { font-size: 76rpx; font-weight: 600; letter-spacing: -0.02em; line-height: 1.05;
+         font-variant-numeric: tabular-nums; }
+.total .cur { font-size: 44rpx; font-weight: 500; color: var(--head-dim); margin-right: 10rpx; }
+.head-sub { margin-top: 18rpx; font-size: 25rpx; color: var(--head-dim); display: flex;
+            flex-wrap: wrap; align-items: baseline; }
+.head-sub .sep { margin: 0 14rpx; color: var(--head-line); }
+.head-sub .v { font-weight: 600; color: var(--head-text); font-variant-numeric: tabular-nums; margin-left: 8rpx; }
+
+.bar { display: flex; height: 18rpx; border-radius: 10rpx; overflow: hidden;
+       margin-top: 38rpx; background: var(--head-line); }
+.bar .seg { height: 100%; margin-right: 4rpx; }
+.bar .seg:last-child { margin-right: 0; }
+.legend { display: flex; flex-wrap: wrap; margin-top: 26rpx; font-size: 23rpx; color: var(--head-dim); }
+.legend .li { width: 50%; display: flex; align-items: center; padding: 7rpx 0; box-sizing: border-box; }
+.legend .li:nth-child(odd) { padding-right: 20rpx; }
+.legend .dot { width: 16rpx; height: 16rpx; border-radius: 4rpx; margin-right: 12rpx; flex: none; }
+.legend .pc { margin-left: auto; color: var(--head-text); font-weight: 500;
+              font-variant-numeric: tabular-nums; }
+
+/* ============ 区块 ============ */
+.sec { padding: 44rpx 40rpx 0; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20rpx; }
+.sec-head .tot { font-size: 27rpx; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.pagetop { padding: 36rpx 40rpx 8rpx; background: transparent; }
+.pagetitle { font-size: 44rpx; font-weight: 700; letter-spacing: -0.02em; }
+.pagesub { font-size: 24rpx; color: var(--text-2); margin-top: 10rpx; }
+
+/* ============ 提醒卡 ============ */
+.alert { display: flex; align-items: center; padding: 24rpx 26rpx; border-radius: 24rpx;
+         background: var(--card); margin-bottom: 16rpx; }
+.alert .stripe { width: 6rpx; align-self: stretch; border-radius: 4rpx; margin-right: 22rpx; flex: none; }
+.alert.soon .stripe { background: var(--amber); }
+.alert.late .stripe { background: var(--seal); }
+.alert .b { flex: 1; min-width: 0; }
+.alert .t { font-size: 27rpx; font-weight: 500; line-height: 1.35; }
+.alert .s { font-size: 23rpx; color: var(--text-2); margin-top: 6rpx; }
+.alert .v { font-size: 28rpx; font-weight: 600; font-variant-numeric: tabular-nums; margin-left: 16rpx; }
+.tag { display: inline-block; font-size: 20rpx; padding: 4rpx 10rpx; border-radius: 8rpx; margin-right: 12rpx; }
+.tag.soon { background: var(--amber-soft); color: var(--amber); }
+.tag.late { background: var(--seal-soft); color: var(--seal); }
+
+/* ============ 明细行 ============ */
+.rows { background: var(--card); border-radius: 24rpx; padding: 0 28rpx; }
+.row { display: flex; align-items: center; padding: 26rpx 0; border-bottom: 1rpx solid var(--hair); }
+.row:last-child { border-bottom: none; }
+.row .swatch { width: 6rpx; height: 52rpx; border-radius: 4rpx; margin-right: 24rpx; flex: none; }
+.row .b { flex: 1; min-width: 0; }
+.row .t { font-size: 28rpx; font-weight: 500; line-height: 1.35; }
+.row .s { font-size: 23rpx; color: var(--text-2); margin-top: 6rpx; }
+.row .r { text-align: right; margin-left: 16rpx; flex: none; }
+.row .v { font-size: 29rpx; font-weight: 600; font-variant-numeric: tabular-nums; }
+.row .d { font-size: 23rpx; margin-top: 6rpx; font-variant-numeric: tabular-nums; }
+.chev { color: var(--text-3); font-size: 24rpx; margin-left: 12rpx; flex: none; }
+
+.up { color: var(--seal); }      /* 红涨 —— 国内习惯 */
+.down { color: var(--jade); }    /* 绿跌 */
+.flat { color: var(--text-3); }
+.od { color: var(--text-2); }    /* 已过约定日：给信息，不报警 */
+.warnc { color: var(--amber); }
+
+/* ============ 折叠层 ============ */
+.layer { display: flex; align-items: center; padding: 30rpx 28rpx; border-radius: 24rpx;
+         background: var(--card); margin-top: 16rpx; }
+.layer .t { font-size: 27rpx; font-weight: 500; }
+.layer .s { font-size: 23rpx; color: var(--text-2); margin-top: 6rpx; }
+.layer .v { font-size: 29rpx; font-weight: 600; font-variant-numeric: tabular-nums; margin-left: 16rpx; }
+
+.networth { margin: 24rpx 40rpx 0; padding: 28rpx; border-radius: 24rpx; background: var(--card);
+            display: flex; align-items: baseline; justify-content: space-between;
+            font-size: 26rpx; color: var(--text-2); }
+.networth .v { font-size: 30rpx; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+
+.note-box { margin: 24rpx 40rpx; padding: 22rpx 24rpx; border-radius: 18rpx; background: transparent;
+            font-size: 22rpx; line-height: 1.7; color: var(--text-3); }
+
+.empty { padding: 100rpx 40rpx; text-align: center; color: var(--text-3); font-size: 26rpx; line-height: 1.8; }
+.empty .big { font-size: 30rpx; color: var(--text-2); margin-bottom: 12rpx; }
+
+/* ============ 按钮 ============ */
+.btn { padding: 28rpx; border-radius: 24rpx; background: var(--tint); color: #FFFFFF;
+       font-size: 29rpx; font-weight: 600; text-align: center; }
+.btn.ghost { background: var(--tint-soft); color: var(--tint); }
+.btn-hover { opacity: 0.75; }
+
+/* ============ 色调（按计价方式区分资产）============ */
+.tone-1 { background: var(--c1); }
+.tone-2 { background: var(--c2); }
+.tone-3 { background: var(--c3); }
+.tone-4 { background: var(--c4); }
+.tone-5 { background: var(--seal); }
+
+/* 顶部墨块永远是深色，里面的占比条和图例要用亮色调，否则存单那段和背景同色看不见 */
+.head .tone-1 { background: #CBD3CD; }
+.head .tone-2 { background: #C6A464; }
+.head .tone-3 { background: #79847E; }
+.head .tone-4 { background: #414B46; }
+
+/* 小程序原生 button 自带一套样式，用作分享按钮时重置掉 */
+button.btn { border: none; background: var(--tint); color: #FFFFFF; }
+button.btn::after { border: none; }
+
+/* 「隐藏金额」：首页把数字换成 ••••，其他页把所有金额与敏感差额模糊掉，跟随同一个开关 */
+.page.masked .v, .page.masked .tot, .page.masked .total, .page.masked .bv, .page.masked .cv,
+.page.masked .ov, .page.masked .bkv, .page.masked .networth .v, .page.masked .row .v,
+.page.masked .row .d, .page.masked .layer .v, .page.masked .rpt-delta, .page.masked .rpt-subd,
+.page.masked .adv-txt, .page.masked .ttext, .page.masked .summary,
+.page.masked .ck-v, .page.masked .prog-v, .page.masked .tbv { filter: blur(10rpx); }
